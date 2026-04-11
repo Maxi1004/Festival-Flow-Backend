@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from firebase_admin import auth
 
 from app.core.firebase import db
-from app.schemas.auth_schema import GoogleUserRequest, RegisterRequest
+from app.schemas.auth_schema import GoogleUserRequest, RegisterRequest, UserRole
 
 
 def register_user(data: RegisterRequest) -> dict:
@@ -16,8 +16,9 @@ def register_user(data: RegisterRequest) -> dict:
     user_data = {
         "uid": user_record.uid,
         "name": data.name,
-        "email": data.email,
+        "email": str(data.email),
         "provider": "password",
+        "role": data.role.value,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
 
@@ -26,7 +27,8 @@ def register_user(data: RegisterRequest) -> dict:
     return {
         "uid": user_record.uid,
         "name": data.name,
-        "email": data.email,
+        "email": str(data.email),
+        "role": data.role,
         "message": "Usuario registrado correctamente",
     }
 
@@ -47,17 +49,20 @@ def sync_google_user(data: GoogleUserRequest) -> dict:
             existing_user = existing_email_doc.to_dict()
             user_doc_ref = existing_email_doc.reference
 
+    resolved_role = existing_user.get("role") if existing_user and existing_user.get("role") else data.role.value
+
     user_data = {
         "uid": data.uid,
         "name": data.name,
         "email": incoming_email,
         "provider": data.provider,
         "picture": data.picture,
+        "role": resolved_role,
     }
 
     if existing_user is None:
         user_data["created_at"] = datetime.now(timezone.utc).isoformat()
-        users_collection.document(data.uid).set(user_data)
+        user_doc_ref.set(user_data)
     else:
         if existing_user.get("created_at"):
             user_data["created_at"] = existing_user["created_at"]
@@ -71,5 +76,6 @@ def sync_google_user(data: GoogleUserRequest) -> dict:
             "email": incoming_email,
             "picture": data.picture,
             "provider": data.provider,
+            "role": resolved_role,
         },
     }

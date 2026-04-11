@@ -1,16 +1,25 @@
+from enum import Enum
+
 from pydantic import BaseModel, EmailStr
+
+
+class UserRole(str, Enum):
+    PRODUCER = "PRODUCER"
+    TALENT = "TALENT"
 
 
 class RegisterRequest(BaseModel):
     name: str
     email: EmailStr
     password: str
+    role: UserRole
 
 
 class RegisterResponse(BaseModel):
     uid: str
     name: str
     email: str
+    role: UserRole
     message: str
 
 
@@ -20,6 +29,7 @@ class GoogleUserRequest(BaseModel):
     email: EmailStr
     picture: str | None = None
     provider: str = "google"
+    role: UserRole
 
 
 class GoogleUserData(BaseModel):
@@ -28,6 +38,7 @@ class GoogleUserData(BaseModel):
     email: str
     picture: str | None = None
     provider: str
+    role: UserRole
 
 
 class GoogleUserResponse(BaseModel):
