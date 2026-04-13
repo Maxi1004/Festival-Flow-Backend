@@ -44,3 +44,13 @@ class GoogleUserData(BaseModel):
 class GoogleUserResponse(BaseModel):
     message: str
     user: GoogleUserData
+
+
+class CurrentUser(BaseModel):
+    uid: str
+    email: str
+    name: str
+    role: UserRole
+    provider: str | None = None
+    picture: str | None = None
+    created_at: str | None = None

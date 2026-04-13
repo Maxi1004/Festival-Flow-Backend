@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from firebase_admin import auth
 
-from app.core.firebase import db
-from app.core.security import verify_firebase_token
-from app.schemas.auth_schema import UserRole
+from app.core.security import get_current_user
 from app.schemas.auth_schema import (
+    CurrentUser,
     GoogleUserRequest,
     GoogleUserResponse,
     RegisterRequest,
@@ -34,25 +33,16 @@ async def google_auth(data: GoogleUserRequest):
 
 
 @router.get("/me")
-async def get_me(decoded_token: dict = Depends(verify_firebase_token)):
-    uid = decoded_token.get("uid")
-
-    if not uid:
-        raise HTTPException(status_code=401, detail="Token invalido")
-
-    user_doc = db.collection("users").document(uid).get()
-    user_data = user_doc.to_dict() if user_doc.exists else {}
-    role = user_data.get("role") or UserRole.TALENT.value
-
+async def get_me(current_user: CurrentUser = Depends(get_current_user)):
     return {
         "message": "Token valido",
         "user": {
-            "uid": uid,
-            "email": user_data.get("email") or decoded_token.get("email"),
-            "name": user_data.get("name") or decoded_token.get("name"),
-            "picture": user_data.get("picture") or decoded_token.get("picture"),
-            "role": role,
-            "provider": user_data.get("provider"),
-            "created_at": user_data.get("created_at"),
+            "uid": current_user.uid,
+            "email": current_user.email,
+            "name": current_user.name,
+            "picture": current_user.picture,
+            "role": current_user.role.value,
+            "provider": current_user.provider,
+            "created_at": current_user.created_at,
         },
     }

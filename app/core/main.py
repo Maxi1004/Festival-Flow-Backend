@@ -2,7 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.firebase import db
+from app.routes.applications import router as applications_router
 from app.routes.auth import router as auth_router
+from app.routes.opportunities import router as opportunities_router
+from app.routes.projects import router as projects_router
+from app.routes.talent import router as talent_router
 
 app = FastAPI(title="Festival Flow API")
 
@@ -28,3 +32,7 @@ async def test_db():
 
 
 app.include_router(auth_router, prefix="/auth")
+app.include_router(talent_router, prefix="/talent")
+app.include_router(projects_router)
+app.include_router(opportunities_router)
+app.include_router(applications_router)
