@@ -1,6 +1,20 @@
 from datetime import date
+from enum import Enum
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictBool, model_validator
+
+
+class AvailabilityStatus(str, Enum):
+    AVAILABLE = "AVAILABLE"
+    UNAVAILABLE = "UNAVAILABLE"
+
+
+class WorkModality(str, Enum):
+    FREELANCE = "FREELANCE"
+    REMOTE = "REMOTE"
+    HYBRID = "HYBRID"
+    ONSITE = "ONSITE"
 
 
 class PortfolioLink(BaseModel):
@@ -39,20 +53,58 @@ class TalentProfileResponse(BaseModel):
 
 
 class TalentAvailabilityUpsertRequest(BaseModel):
-    status: str = ""
-    travel_availability: bool = False
-    work_modality: str = ""
-    work_location: str = ""
+    status: AvailabilityStatus
+    travel_availability: StrictBool
+    work_modality: WorkModality
+    location: str | None = None
     available_from: date | None = None
-    notes: str = ""
+    notes: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def accept_legacy_field_names(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+
+        normalized = data.copy()
+        if "location" not in normalized and "work_location" in normalized:
+            normalized["location"] = normalized["work_location"]
+        if "work_modality" not in normalized and "modality" in normalized:
+            normalized["work_modality"] = normalized["modality"]
+        if "status" not in normalized and "availability_status" in normalized:
+            normalized["status"] = normalized["availability_status"]
+        if "travel_availability" not in normalized and "available_to_travel" in normalized:
+            normalized["travel_availability"] = normalized["available_to_travel"]
+
+        return normalized
 
 
 class TalentAvailabilityResponse(BaseModel):
-    user_uid: str
-    status: str
+    user_id: str
+    status: AvailabilityStatus
     travel_availability: bool
-    work_modality: str
-    work_location: str
+    work_modality: WorkModality
+    location: str | None = None
     available_from: str | None = None
-    notes: str
+    notes: str | None = None
     updated_at: str | None = None
+
+
+class AvailableTalentProfile(BaseModel):
+    specialties: list[str] = Field(default_factory=list)
+    skills: list[str] = Field(default_factory=list)
+    experience_years: int | None = None
+    portfolio_url: str | None = None
+
+
+class AvailableTalentResponse(BaseModel):
+    user_id: str
+    name: str
+    email: str
+    status: AvailabilityStatus
+    travel_availability: bool
+    work_modality: WorkModality
+    location: str | None = None
+    available_from: str | None = None
+    notes: str | None = None
+    profile: AvailableTalentProfile

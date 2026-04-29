@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 
 from app.core.security import get_current_user, require_role
 from app.schemas.auth_schema import CurrentUser, UserRole
+from app.schemas.application_schema import OpportunityApplicationResponse
 from app.schemas.opportunity_schema import (
     OpportunityCreateRequest,
     OpportunityResponse,
@@ -16,6 +17,7 @@ from app.services.opportunity_service import (
     update_my_opportunity,
     update_my_opportunity_status,
 )
+from app.services.application_service import list_opportunity_applications
 
 router = APIRouter(tags=["Opportunities"])
 
@@ -49,6 +51,21 @@ async def get_my_opportunities(
     current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
 ):
     return list_my_opportunities(current_user)
+
+
+@router.get("/producer/opportunities", response_model=list[OpportunityResponse])
+async def get_producer_opportunities(
+    current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
+):
+    return list_my_opportunities(current_user)
+
+
+@router.get("/opportunities/{opportunity_id}/applications", response_model=list[OpportunityApplicationResponse])
+async def get_opportunity_applications(
+    opportunity_id: str,
+    current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
+):
+    return list_opportunity_applications(opportunity_id, current_user)
 
 
 @router.get("/opportunities/{opportunity_id}", response_model=OpportunityResponse)

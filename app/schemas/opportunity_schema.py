@@ -12,7 +12,7 @@ class OpportunityCreateRequest(BaseModel):
     location: str
     modality: str
     requirements: list[str] = Field(default_factory=list)
-    status: str
+    status: str = "ACTIVE"
     deadline: date | None = None
 
 
@@ -36,6 +36,8 @@ class OpportunityResponse(BaseModel):
     id: str
     project_id: str | None = None
     owner_uid: str
+    created_by: str
+    producer_id: str
     title: str
     role_needed: str
     specialty: str
