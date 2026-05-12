@@ -40,3 +40,5 @@ app.include_router(opportunities_router)
 app.include_router(applications_router)
 app.include_router(recruitments_router)
 app.include_router(crew_router)
+
+#7
