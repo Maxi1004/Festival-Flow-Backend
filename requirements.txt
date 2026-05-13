@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+firebase-admin
+pydantic
+python-dotenv
+email-validator
