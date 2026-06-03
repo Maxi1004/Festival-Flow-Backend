@@ -1,6 +1,9 @@
 from datetime import date, datetime
+import time
 from typing import Any
 from unicodedata import normalize as unicode_normalize
+
+from google.cloud.firestore_v1.base_query import FieldFilter, Or
 
 from app.core.firebase import db
 from app.core.utils import utc_now_iso
@@ -14,11 +17,15 @@ from app.schemas.talent_schema import (
     TalentProfileResponse,
     TalentProfileUpsertRequest,
     WorkModality,
+    TalentCommitmentResponse,
+    TalentCommitmentsResponse,
 )
 
 
 DEFAULT_AVAILABILITY_STATUS = AvailabilityStatus.UNAVAILABLE
 DEFAULT_WORK_MODALITY = WorkModality.REMOTE
+MAX_AVAILABLE_TALENT_CANDIDATES = 200
+MAX_TALENT_COMMITMENT_CANDIDATES = 100
 
 
 def _clean_text(value: Any) -> str:
@@ -27,6 +34,47 @@ def _clean_text(value: Any) -> str:
 
     text = str(value).strip().lower()
     return unicode_normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+
+
+def _normalize_text_list(value: Any) -> list[str]:
+    if value is None:
+        return []
+
+    raw_items = value if isinstance(value, list) else str(value).split(",")
+    items: list[str] = []
+
+    for item in raw_items:
+        normalized_item = str(item).strip()
+        if normalized_item and normalized_item not in items:
+            items.append(normalized_item)
+
+    return items
+
+
+def _has_positive_number(value: Any) -> bool:
+    try:
+        return float(value or 0) > 0
+    except (TypeError, ValueError):
+        return False
+
+
+def _calculate_profile_completion(profile_data: dict) -> int:
+    requirements = [
+        (bool(profile_data.get("photo_url") or profile_data.get("picture") or profile_data.get("avatar_url")), 10),
+        (bool(str(profile_data.get("display_name") or "").strip()), 5),
+        (bool(str(profile_data.get("location") or "").strip()), 5),
+        (bool(str(profile_data.get("main_specialty") or "").strip()), 10),
+        (bool(_normalize_text_list(profile_data.get("specialties"))), 10),
+        (bool(_normalize_text_list(profile_data.get("skills"))), 10),
+        (bool(_normalize_text_list(profile_data.get("languages"))), 10),
+        (bool(str(profile_data.get("bio") or "").strip()), 10),
+        (_has_positive_number(profile_data.get("experience_years")), 5),
+        (bool(profile_data.get("portfolio_items")), 10),
+        (bool(str(profile_data.get("portfolio_pdf_url") or "").strip()), 10),
+        (profile_data.get("is_public") is True, 5),
+    ]
+
+    return sum(weight for is_complete, weight in requirements if is_complete)
 
 
 def _normalize_availability_status(value: Any) -> AvailabilityStatus:
@@ -107,10 +155,17 @@ def _get_first_portfolio_url(profile_data: dict) -> str | None:
 
 
 def get_talent_profile(current_user: CurrentUser) -> TalentProfileResponse:
+    start = time.perf_counter()
+    profile_get_start = time.perf_counter()
     profile_doc = db.collection("talent_profiles").document(current_user.uid).get()
+    print(
+        "[PERF] talent profile Firestore talent_profiles/{uid}.get "
+        f"(reads=1): {(time.perf_counter() - profile_get_start) * 1000:.2f} ms"
+    )
 
     if not profile_doc.exists:
-        return TalentProfileResponse(
+        serialization_start = time.perf_counter()
+        response = TalentProfileResponse(
             user_uid=current_user.uid,
             display_name=current_user.name or "",
             bio="",
@@ -121,33 +176,50 @@ def get_talent_profile(current_user: CurrentUser) -> TalentProfileResponse:
             languages=[],
             skills=[],
             portfolio_links=[],
+            portfolio_items=[],
+            photo_url=None,
+            portfolio_pdf_url=None,
             profile_completion=0,
             is_public=False,
             updated_at=None,
         )
+        print(f"[PERF] talent profile serialize default response: {(time.perf_counter() - serialization_start) * 1000:.2f} ms")
+        print(f"[PERF] talent profile service total: {(time.perf_counter() - start) * 1000:.2f} ms")
+        return response
 
+    serialization_start = time.perf_counter()
     profile_data = profile_doc.to_dict() or {}
-    return TalentProfileResponse(
+    profile_completion = _calculate_profile_completion(profile_data)
+    response = TalentProfileResponse(
         user_uid=profile_data.get("user_uid", current_user.uid),
         display_name=profile_data.get("display_name", current_user.name or ""),
         bio=profile_data.get("bio", ""),
         main_specialty=profile_data.get("main_specialty", ""),
-        specialties=profile_data.get("specialties", []),
+        specialties=_normalize_text_list(profile_data.get("specialties")),
         location=profile_data.get("location", ""),
         experience_years=profile_data.get("experience_years", 0),
-        languages=profile_data.get("languages", []),
-        skills=profile_data.get("skills", []),
+        languages=_normalize_text_list(profile_data.get("languages")),
+        skills=_normalize_text_list(profile_data.get("skills")),
         portfolio_links=profile_data.get("portfolio_links", []),
-        profile_completion=profile_data.get("profile_completion", 0),
+        portfolio_items=profile_data.get("portfolio_items", []),
+        photo_url=profile_data.get("photo_url") or profile_data.get("picture") or profile_data.get("avatar_url"),
+        portfolio_pdf_url=profile_data.get("portfolio_pdf_url"),
+        profile_completion=profile_completion,
         is_public=profile_data.get("is_public", False),
         updated_at=profile_data.get("updated_at"),
     )
+    print(f"[PERF] talent profile serialize response: {(time.perf_counter() - serialization_start) * 1000:.2f} ms")
+    print(f"[PERF] talent profile service total: {(time.perf_counter() - start) * 1000:.2f} ms")
+    return response
 
 
 def upsert_talent_profile(
     current_user: CurrentUser,
     payload: TalentProfileUpsertRequest,
 ) -> TalentProfileResponse:
+    profile_doc_ref = db.collection("talent_profiles").document(current_user.uid)
+    existing_profile_doc = profile_doc_ref.get()
+    existing_profile_data = existing_profile_doc.to_dict() or {} if existing_profile_doc.exists else {}
     profile_data = {
         "user_uid": current_user.uid,
         "display_name": payload.display_name or current_user.name or "",
@@ -159,13 +231,51 @@ def upsert_talent_profile(
         "languages": payload.languages,
         "skills": payload.skills,
         "portfolio_links": [item.model_dump() for item in payload.portfolio_links],
-        "profile_completion": payload.profile_completion,
+        "portfolio_items": [item.model_dump() for item in payload.portfolio_items],
+        "photo_url": existing_profile_data.get("photo_url"),
+        "portfolio_pdf_url": existing_profile_data.get("portfolio_pdf_url"),
         "is_public": payload.is_public,
         "updated_at": utc_now_iso(),
     }
+    profile_data["profile_completion"] = _calculate_profile_completion(profile_data)
 
-    db.collection("talent_profiles").document(current_user.uid).set(profile_data)
+    profile_doc_ref.set(profile_data, merge=True)
     return TalentProfileResponse(**profile_data)
+
+
+def update_talent_profile_photo(current_user: CurrentUser, photo_url: str) -> str:
+    profile_doc_ref = db.collection("talent_profiles").document(current_user.uid)
+    existing_profile_doc = profile_doc_ref.get()
+    profile_data = existing_profile_doc.to_dict() or {} if existing_profile_doc.exists else {}
+    profile_data.update(
+        {
+            "user_uid": current_user.uid,
+            "photo_url": photo_url,
+            "updated_at": utc_now_iso(),
+        }
+    )
+    profile_data["profile_completion"] = _calculate_profile_completion(profile_data)
+    profile_doc_ref.set(
+        profile_data,
+        merge=True,
+    )
+    return photo_url
+
+
+def update_talent_profile_portfolio_pdf(current_user: CurrentUser, portfolio_pdf_url: str) -> str:
+    profile_doc_ref = db.collection("talent_profiles").document(current_user.uid)
+    existing_profile_doc = profile_doc_ref.get()
+    profile_data = existing_profile_doc.to_dict() or {} if existing_profile_doc.exists else {}
+    profile_data.update(
+        {
+            "user_uid": current_user.uid,
+            "portfolio_pdf_url": portfolio_pdf_url,
+            "updated_at": utc_now_iso(),
+        }
+    )
+    profile_data["profile_completion"] = _calculate_profile_completion(profile_data)
+    profile_doc_ref.set(profile_data, merge=True)
+    return portfolio_pdf_url
 
 
 def get_talent_availability(current_user: CurrentUser) -> TalentAvailabilityResponse:
@@ -221,16 +331,62 @@ def upsert_talent_availability(
     return TalentAvailabilityResponse(**availability_data)
 
 
-def list_available_talents() -> list[AvailableTalentResponse]:
-    items: list[AvailableTalentResponse] = []
+def _matches_text(value: Any, expected: str | None) -> bool:
+    return not expected or _clean_text(expected) in _clean_text(value)
 
-    for availability_doc in db.collection("talent_availability").stream():
+
+def _matches_any(values: list[Any], expected: str | None) -> bool:
+    return not expected or any(_matches_text(value, expected) for value in values)
+
+
+def _availability_filter(availability: str | None):
+    normalized = _clean_text(availability)
+    if normalized in {"", "all", "todos", "todas"}:
+        return None
+
+    target_status = _normalize_availability_status(availability)
+    if target_status == AvailabilityStatus.AVAILABLE:
+        values = ["AVAILABLE", "available", "Disponible", "disponible", "Si", "si", "SÃƒÂ­", "sÃƒÂ­"]
+    else:
+        values = ["UNAVAILABLE", "unavailable", "No disponible", "no disponible", "Indisponible", "indisponible"]
+
+    return Or(
+        [
+            FieldFilter("status", "in", values),
+            FieldFilter("availability_status", "in", values),
+        ]
+    )
+
+
+def list_available_talents(
+    *,
+    search: str | None = None,
+    category: str | None = None,
+    location: str | None = None,
+    language: str | None = None,
+    availability: str | None = "AVAILABLE",
+    limit: int = 40,
+) -> list[AvailableTalentResponse]:
+    items: list[AvailableTalentResponse] = []
+    candidate_limit = min(MAX_AVAILABLE_TALENT_CANDIDATES, max(limit * 5, 50))
+    query = db.collection("talent_availability")
+    availability_filter = _availability_filter(availability)
+
+    if availability_filter is not None:
+        query = query.where(filter=availability_filter)
+
+    query = query.order_by("__name__").limit(candidate_limit)
+
+    for availability_doc in query.stream():
         availability_data = availability_doc.to_dict() or {}
         status = _normalize_availability_status(
             availability_data.get("status") or availability_data.get("availability_status")
         )
 
-        if status != AvailabilityStatus.AVAILABLE:
+        if not _matches_text(
+            availability_data.get("location") or availability_data.get("work_location"),
+            location,
+        ):
             continue
 
         user_id = availability_data.get("user_id") or availability_data.get("user_uid") or availability_doc.id
@@ -244,12 +400,32 @@ def list_available_talents() -> list[AvailableTalentResponse]:
 
         profile_doc = db.collection("talent_profiles").document(user_id).get()
         profile_data = profile_doc.to_dict() or {} if profile_doc.exists else {}
+        specialties = _normalize_text_list(profile_data.get("specialties"))
+        languages = _normalize_text_list(profile_data.get("languages"))
+        skills = _normalize_text_list(profile_data.get("skills"))
+        category_values = [
+            profile_data.get("main_specialty"),
+            *specialties,
+            *skills,
+        ]
+        name_values = [
+            user_data.get("name"),
+            profile_data.get("display_name"),
+        ]
+
+        if not _matches_any(name_values, search):
+            continue
+        if not _matches_any(category_values, category):
+            continue
+        if not _matches_any(languages, language):
+            continue
 
         items.append(
             AvailableTalentResponse(
                 user_id=user_id,
                 name=user_data.get("name", ""),
                 email=user_data.get("email", ""),
+                picture=profile_data.get("photo_url") or user_data.get("picture") or profile_data.get("picture") or profile_data.get("avatar_url"),
                 status=status,
                 travel_availability=_normalize_travel_availability(
                     availability_data.get("travel_availability", availability_data.get("available_to_travel", False))
@@ -261,12 +437,138 @@ def list_available_talents() -> list[AvailableTalentResponse]:
                 available_from=_serialize_available_from(availability_data.get("available_from")),
                 notes=availability_data.get("notes"),
                 profile=AvailableTalentProfile(
-                    specialties=profile_data.get("specialties", []),
-                    skills=profile_data.get("skills", []),
+                    display_name=profile_data.get("display_name"),
+                    main_specialty=profile_data.get("main_specialty"),
+                    photo_url=profile_data.get("photo_url"),
+                    specialties=specialties,
+                    languages=languages,
+                    skills=skills,
                     experience_years=profile_data.get("experience_years"),
+                    bio=profile_data.get("bio"),
                     portfolio_url=_get_first_portfolio_url(profile_data),
                 ),
             )
         )
 
+        if len(items) >= limit:
+            break
+
     return sorted(items, key=lambda item: item.available_from or "")
+
+
+def _get_documents_by_id(collection_name: str, document_ids: set[str]) -> dict[str, dict]:
+    document_refs = [
+        db.collection(collection_name).document(document_id)
+        for document_id in document_ids
+        if document_id
+    ]
+    if not document_refs:
+        return {}
+
+    return {
+        doc.id: doc.to_dict() or {}
+        for doc in db.get_all(document_refs)
+        if doc.exists
+    }
+
+
+def _get_crew_project_id(crew_data: dict) -> str | None:
+    return (
+        crew_data.get("project_id")
+        or crew_data.get("projectId")
+        or crew_data.get("project_uid")
+    )
+
+
+def _get_crew_opportunity_id(crew_data: dict) -> str | None:
+    return crew_data.get("opportunity_id") or crew_data.get("opportunityId")
+
+
+def _is_active_crew_member(crew_data: dict) -> bool:
+    status = crew_data.get("status")
+    return not status or str(status).upper() == "ACTIVE"
+
+
+def get_talent_availability_commitments(
+    current_user: CurrentUser,
+) -> TalentCommitmentsResponse:
+    commitments: list[TalentCommitmentResponse] = []
+    crew_docs = list(
+        db.collection("crew_members")
+        .where(
+            filter=Or(
+                [
+                    FieldFilter("talent_user_id", "==", current_user.uid),
+                    FieldFilter("talent_id", "==", current_user.uid),
+                ]
+            )
+        )
+        .limit(MAX_TALENT_COMMITMENT_CANDIDATES)
+        .stream()
+    )
+    crew_items = []
+    for crew_doc in crew_docs:
+        crew_data = crew_doc.to_dict() or {}
+        if _is_active_crew_member(crew_data):
+            crew_items.append(crew_data)
+    if not crew_items:
+        return TalentCommitmentsResponse(commitments=[])
+
+    projects_by_id = _get_documents_by_id(
+        "projects",
+        {
+            project_id
+            for crew_data in crew_items
+            if (project_id := _get_crew_project_id(crew_data))
+        },
+    )
+    opportunities_by_id = _get_documents_by_id(
+        "opportunities",
+        {
+            opportunity_id
+            for crew_data in crew_items
+            if (opportunity_id := _get_crew_opportunity_id(crew_data))
+        },
+    )
+
+    for crew_data in crew_items:
+        project_id = _get_crew_project_id(crew_data)
+        opportunity_id = _get_crew_opportunity_id(crew_data)
+        project_title = crew_data.get("project_title") or crew_data.get("project_name")
+        opportunity_title = crew_data.get("opportunity_title")
+
+        start_date = crew_data.get("start_date")
+        end_date = crew_data.get("end_date")
+
+        project_data = projects_by_id.get(project_id, {})
+        project_title = (
+            project_title
+            or project_data.get("title")
+            or project_data.get("name")
+            or project_data.get("project_name")
+        )
+        start_date = start_date or project_data.get("start_date")
+        end_date = end_date or project_data.get("end_date")
+
+        opportunity_data = opportunities_by_id.get(opportunity_id, {})
+        opportunity_title = (
+            opportunity_title
+            or opportunity_data.get("title")
+            or opportunity_data.get("name")
+        )
+        start_date = start_date or opportunity_data.get("start_date")
+        end_date = end_date or opportunity_data.get("end_date")
+
+        commitments.append(
+            TalentCommitmentResponse(
+                project_id=project_id,
+                project_title=project_title,
+                opportunity_id=opportunity_id,
+                opportunity_title=opportunity_title,
+                start_date=_serialize_available_from(start_date),
+                end_date=_serialize_available_from(end_date),
+                status="OCCUPIED",
+            )
+        )
+
+    return TalentCommitmentsResponse(commitments=commitments)

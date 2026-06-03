@@ -22,12 +22,15 @@ from app.services.application_service import list_opportunity_applications
 router = APIRouter(tags=["Opportunities"])
 
 
-@router.get("/opportunities", response_model=list[OpportunityResponse])
+
+@router.get("/opportunities")
 async def get_opportunities(
     specialty: str | None = Query(default=None),
     location: str | None = Query(default=None),
     modality: str | None = Query(default=None),
     status: str | None = Query(default=None),
+    limit: int = Query(default=10, ge=1, le=50),
+    cursor: str | None = Query(default=None),
     current_user: CurrentUser = Depends(get_current_user),
 ):
     return list_opportunities(
@@ -35,15 +38,9 @@ async def get_opportunities(
         location=location,
         modality=modality,
         status=status,
+        limit=limit,
+        cursor=cursor,
     )
-
-
-@router.post("/opportunities", response_model=OpportunityResponse)
-async def post_opportunity(
-    payload: OpportunityCreateRequest,
-    current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
-):
-    return create_opportunity(payload, current_user)
 
 
 @router.get("/opportunities/me", response_model=list[OpportunityResponse])

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.core.security import require_role
 from app.schemas.application_schema import (
@@ -6,9 +6,17 @@ from app.schemas.application_schema import (
     ApplicationResponse,
     ApplicationStatusUpdateRequest,
     ApplicationStatusUpdateResponse,
+    TalentApplicationFeedResponse,
+    TalentApplicationFeedSummary,
 )
 from app.schemas.auth_schema import CurrentUser, UserRole
-from app.services.application_service import create_application, list_my_applications, update_application_status
+from app.services.application_service import (
+    create_application,
+    get_my_application_summary,
+    list_my_application_feed,
+    list_my_applications,
+    update_application_status,
+)
 
 router = APIRouter(tags=["Applications"])
 
@@ -26,6 +34,23 @@ async def get_my_applications(
     current_user: CurrentUser = Depends(require_role(UserRole.TALENT)),
 ):
     return list_my_applications(current_user)
+
+
+@router.get("/applications/me/feed", response_model=TalentApplicationFeedResponse)
+async def get_my_application_feed(
+    limit: int = Query(default=10, ge=1, le=50),
+    cursor: str | None = Query(default=None),
+    summary: bool = Query(default=True),
+    current_user: CurrentUser = Depends(require_role(UserRole.TALENT)),
+):
+    return list_my_application_feed(current_user, limit=limit, cursor=cursor, include_summary=summary)
+
+
+@router.get("/applications/me/summary", response_model=TalentApplicationFeedSummary)
+async def get_my_applications_summary(
+    current_user: CurrentUser = Depends(require_role(UserRole.TALENT)),
+):
+    return get_my_application_summary(current_user)
 
 
 @router.patch("/applications/{application_id}/status", response_model=ApplicationStatusUpdateResponse)

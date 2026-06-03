@@ -7,6 +7,7 @@ class RecruitmentStatus(str, Enum):
     PENDING = "PENDING"
     ACCEPTED = "ACCEPTED"
     REJECTED = "REJECTED"
+    CANCELLED = "CANCELLED"
 
 
 class RecruitmentDecisionStatus(str, Enum):
@@ -69,3 +70,33 @@ class RecruitmentInvitationResponse(RecruitmentResponse):
     project: RecruitmentProjectSummary | None = None
     opportunity: RecruitmentOpportunitySummary | None = None
     producer: RecruitmentProducerSummary | None = None
+
+
+class TalentRecruitmentFeedItem(BaseModel):
+    id: str
+    project_id: str | None = None
+    project_title: str
+    opportunity_id: str | None = None
+    opportunity_title: str
+    producer_uid: str
+    producer_name: str
+    role: str | None = None
+    category: str
+    message: str
+    status: RecruitmentStatus
+    created_at: str
+    updated_at: str
+
+
+class TalentRecruitmentFeedSummary(BaseModel):
+    total: int = 0
+    pending: int = 0
+    accepted: int = 0
+    rejected: int = 0
+    cancelled: int = 0
+
+
+class TalentRecruitmentFeedResponse(BaseModel):
+    items: list[TalentRecruitmentFeedItem] = Field(default_factory=list)
+    next_cursor: str | None = None
+    summary: TalentRecruitmentFeedSummary | None = None

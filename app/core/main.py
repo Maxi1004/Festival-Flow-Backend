@@ -1,12 +1,14 @@
 import os
+import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.firebase import db
 from app.routes.applications import router as applications_router
 from app.routes.auth import router as auth_router
 from app.routes.crew import router as crew_router
+from app.routes.dashboard import router as dashboard_router
 from app.routes.opportunities import router as opportunities_router
 from app.routes.projects import router as projects_router
 from app.routes.recruitments import router as recruitments_router
@@ -32,6 +34,28 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def log_request_timing(request: Request, call_next):
+    start = time.perf_counter()
+    response = await call_next(request)
+    if request.url.path in {
+        "/auth/me",
+        "/me",
+        "/applications/me/feed",
+        "/applications/me/summary",
+        "/crew/me/feed",
+        "/crew/me/summary",
+        "/recruitments/me/feed",
+        "/recruitments/me/summary",
+        "/talent/profile/me",
+    }:
+        print(
+            f"[PERF] HTTP {request.method} {request.url.path} total: "
+            f"{(time.perf_counter() - start) * 1000:.2f} ms"
+        )
+    return response
+
+
 @app.get("/")
 async def root() -> dict[str, str]:
     return {"message": "Festival Flow API is running"}
@@ -51,5 +75,6 @@ app.include_router(opportunities_router)
 app.include_router(applications_router)
 app.include_router(recruitments_router)
 app.include_router(crew_router)
+app.include_router(dashboard_router)
 
 #7

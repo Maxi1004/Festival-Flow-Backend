@@ -46,6 +46,22 @@ class GoogleUserResponse(BaseModel):
     user: GoogleUserData
 
 
+class AuthMeUserData(BaseModel):
+    uid: str
+    email: str
+    name: str
+    picture: str | None = None
+    photo_url: str | None = None
+    role: UserRole
+    provider: str | None = None
+    created_at: str | None = None
+
+
+class AuthMeResponse(BaseModel):
+    message: str
+    user: AuthMeUserData
+
+
 class CurrentUser(BaseModel):
     uid: str
     email: str

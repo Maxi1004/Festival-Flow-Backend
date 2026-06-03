@@ -67,7 +67,9 @@ def list_opportunities(
     location: str | None = None,
     modality: str | None = None,
     status: str | None = None,
-) -> list[OpportunityResponse]:
+    limit: int = 10,
+    cursor: str | None = None,
+) -> dict:
     query = db.collection("opportunities")
     requested_status = _normalize_status(status)
 
@@ -77,11 +79,29 @@ def list_opportunities(
         query = query.where("location", "==", location)
     if modality:
         query = query.where("modality", "==", modality)
+
     query = query.where("status", "==", requested_status)
+    query = query.order_by("__name__")
 
-    items = [_serialize_opportunity(doc.id, doc.to_dict() or {}) for doc in query.stream()]
-    return sorted(items, key=lambda item: item.created_at or "", reverse=True)
+    if cursor:
+        cursor_doc = db.collection("opportunities").document(cursor).get()
+        if cursor_doc.exists:
+            query = query.start_after(cursor_doc)
 
+    docs = list(query.limit(limit + 1).stream())
+
+    has_more = len(docs) > limit
+    page_docs = docs[:limit]
+
+    items = [
+        _serialize_opportunity(doc.id, doc.to_dict() or {})
+        for doc in page_docs
+    ]
+
+    return {
+        "items": items,
+        "next_cursor": page_docs[-1].id if has_more and page_docs else None,
+    }
 
 def get_opportunity_by_id(opportunity_id: str) -> OpportunityResponse:
     opportunity_doc = db.collection("opportunities").document(opportunity_id).get()

@@ -30,6 +30,39 @@ class ApplicationResponse(BaseModel):
     project: dict | None = None
 
 
+class TalentApplicationFeedItem(BaseModel):
+    id: str
+    opportunity_id: str
+    project_id: str | None = None
+    opportunity_title: str
+    project_title: str
+    status: str
+    applied_at: str
+    updated_at: str
+    message: str
+    result_label: str
+    opportunity: dict | None = None
+    project: dict | None = None
+
+
+class TalentApplicationFeedSummary(BaseModel):
+    total: int = 0
+    active: int = 0
+    reviewing: int = 0
+    accepted: int = 0
+    rejected: int = 0
+    cancelled: int = 0
+    completed: int = 0
+    closed: int = 0
+    acceptance_rate: int = 0
+
+
+class TalentApplicationFeedResponse(BaseModel):
+    items: list[TalentApplicationFeedItem] = Field(default_factory=list)
+    next_cursor: str | None = None
+    summary: TalentApplicationFeedSummary | None = None
+
+
 class ApplicationTalentSummary(BaseModel):
     user_id: str
     name: str
