@@ -63,6 +63,7 @@ def get_current_user(decoded_token: dict = Depends(verify_firebase_token)) -> Cu
         role=parsed_role,
         provider=user_data.get("provider"),
         picture=user_data.get("picture") or decoded_token.get("picture"),
+        photo_url=user_data.get("photo_url"),
         created_at=user_data.get("created_at"),
     )
     print(f"[PERF] get_current_user build CurrentUser: {(time.perf_counter() - response_start) * 1000:.2f} ms")

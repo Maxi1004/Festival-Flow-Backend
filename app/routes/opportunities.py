@@ -5,6 +5,7 @@ from app.schemas.auth_schema import CurrentUser, UserRole
 from app.schemas.application_schema import OpportunityApplicationResponse
 from app.schemas.opportunity_schema import (
     OpportunityCreateRequest,
+    OpportunityCrmResponse,
     OpportunityResponse,
     OpportunityStatusUpdateRequest,
     OpportunityUpdateRequest,
@@ -12,6 +13,7 @@ from app.schemas.opportunity_schema import (
 from app.services.opportunity_service import (
     create_opportunity,
     get_opportunity_by_id,
+    list_my_opportunities_crm,
     list_my_opportunities,
     list_opportunities,
     update_my_opportunity,
@@ -48,6 +50,13 @@ async def get_my_opportunities(
     current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
 ):
     return list_my_opportunities(current_user)
+
+
+@router.get("/opportunities/me/crm", response_model=list[OpportunityCrmResponse])
+async def get_my_opportunities_crm(
+    current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
+):
+    return list_my_opportunities_crm(current_user)
 
 
 @router.get("/producer/opportunities", response_model=list[OpportunityResponse])

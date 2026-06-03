@@ -46,6 +46,23 @@ class OpportunityResponse(BaseModel):
     modality: str
     requirements: list[str] = Field(default_factory=list)
     status: str
+    applications_count: int = 0
+    applicants_count: int = 0
+    deadline: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None
+
+
+class OpportunityCrmResponse(BaseModel):
+    id: str
+    project_id: str | None = None
+    project_title: str = ""
+    title: str
+    role_needed: str = ""
+    specialty: str = ""
+    status: str
+    applications_count: int = 0
+    applicants_count: int = 0
     deadline: str | None = None
     created_at: str | None = None
     updated_at: str | None = None

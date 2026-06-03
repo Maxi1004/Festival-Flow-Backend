@@ -161,6 +161,19 @@ class AvailableTalentResponse(BaseModel):
     notes: str | None = None
     profile: AvailableTalentProfile
 
+
+class AvailableTalentCrmResponse(BaseModel):
+    user_id: str
+    name: str
+    email: str
+    photo_url: str | None = None
+    specialty: str = ""
+    location: str | None = None
+    modality: WorkModality
+    status: AvailabilityStatus
+    available_from: str | None = None
+
+
 class TalentCommitmentResponse(BaseModel):
     project_id: str | None = None
     project_title: str | None = None

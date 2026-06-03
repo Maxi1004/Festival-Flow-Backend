@@ -19,6 +19,7 @@ from app.schemas.crew_schema import (
     CrewMessageResponse,
     CrewOpportunitySummary,
     CrewProducerSummary,
+    CrewProjectCrmResponse,
     CrewProjectSummary,
     CrewTalentSummary,
     MessageConversationFeedResponse,
@@ -166,6 +167,7 @@ def create_or_update_crew_member(
     recruitment_id: str | None,
     source: str,
     role: str | None = None,
+    category: str | None = None,
     task_description: str | None = None,
     producer_note: str | None = None,
     project_title: str | None = None,
@@ -174,6 +176,36 @@ def create_or_update_crew_member(
 ) -> dict:
     crew_member_id = _crew_member_id(producer_id, talent_user_id, project_id, opportunity_id)
     crew_member_ref = db.collection("crew_members").document(crew_member_id)
+    matched_existing_member = False
+
+    if application_id:
+        existing_application_docs = list(
+            db.collection("crew_members")
+            .where(filter=FieldFilter("application_id", "==", application_id))
+            .limit(1)
+            .stream()
+        )
+        if existing_application_docs:
+            crew_member_ref = existing_application_docs[0].reference
+            crew_member_id = existing_application_docs[0].id
+            matched_existing_member = True
+
+    if not matched_existing_member and project_id and talent_user_id:
+        existing_project_docs = list(
+            db.collection("crew_members")
+            .where(filter=FieldFilter("project_id", "==", project_id))
+            .stream()
+        )
+        for existing_project_doc in existing_project_docs:
+            existing_project_data = existing_project_doc.to_dict() or {}
+            if (
+                existing_project_data.get("talent_user_id") == talent_user_id
+                or existing_project_data.get("talent_uid") == talent_user_id
+            ):
+                crew_member_ref = existing_project_doc.reference
+                crew_member_id = existing_project_doc.id
+                break
+
     existing_doc = crew_member_ref.get()
     existing_data = {}
     if existing_doc.exists:
@@ -212,6 +244,7 @@ def create_or_update_crew_member(
         "recruitment_id": recruitment_id,
         "source": source,
         "role": existing_data.get("role") or role,
+        "category": existing_data.get("category") or category,
         "task_description": existing_data.get("task_description") or task_description,
         "producer_note": existing_data.get("producer_note") or producer_note,
         "status": "ACTIVE",
@@ -220,6 +253,8 @@ def create_or_update_crew_member(
         "updated_at": timestamp,
         "messages_count": existing_data.get("messages_count", 0),
     }
+    crew_member_data.pop("removed_at", None)
+    crew_member_data.pop("removed_by", None)
 
     crew_member_ref.set(crew_member_data)
     return crew_member_data
@@ -269,6 +304,104 @@ def list_producer_crew(current_user: CurrentUser) -> list[CrewMemberResponse]:
     query = db.collection("crew_members").where("producer_id", "==", current_user.uid)
     items = [_serialize_crew_member(doc.id, doc.to_dict() or {}) for doc in query.stream()]
     return sorted(items, key=lambda item: item.joined_at or "", reverse=True)
+
+
+def _crew_project_status(member_rows: list[tuple[str, dict]]) -> str:
+    statuses = {str(data.get("status") or "").strip().upper() for _, data in member_rows}
+    if "ACTIVE" in statuses or "ACCEPTED" in statuses:
+        return "ACTIVE"
+    if "REMOVED" in statuses and len(statuses) == 1:
+        return "REMOVED"
+    return next((status for status in statuses if status), "")
+
+
+def _crew_last_activity(member_rows: list[tuple[str, dict]]) -> str | None:
+    values = [
+        serialize_date(data.get("updated_at") or data.get("last_activity") or data.get("joined_at") or data.get("created_at"))
+        for _, data in member_rows
+    ]
+    return max([value for value in values if value], default=None)
+
+
+def list_producer_crew_crm(
+    current_user: CurrentUser,
+    *,
+    summary: bool = True,
+) -> list[CrewProjectCrmResponse]:
+    start = time.perf_counter()
+    query_start = time.perf_counter()
+    docs = list(db.collection("crew_members").where("producer_id", "==", current_user.uid).stream())
+    member_rows = [(doc.id, doc.to_dict() or {}) for doc in docs]
+    print(
+        "[PERF] crew CRM crew_members query "
+        f"(reads={len(member_rows)}): {(time.perf_counter() - query_start) * 1000:.2f} ms"
+    )
+
+    grouped: dict[str, list[tuple[str, dict]]] = {}
+    for crew_member_id, data in member_rows:
+        project_id = data.get("project_id") or "no_project"
+        grouped.setdefault(project_id, []).append((crew_member_id, data))
+
+    projects_by_id = _get_documents_by_id(
+        "projects",
+        {project_id for project_id in grouped if project_id != "no_project"},
+    )
+
+    identities_by_uid: dict[str, dict] = {}
+    if not summary:
+        fallbacks_by_uid = {
+            data.get("talent_user_id") or data.get("talent_uid", ""): data
+            for rows in grouped.values()
+            for _, data in rows
+            if data.get("talent_user_id") or data.get("talent_uid")
+        }
+        identities_by_uid = _get_project_user_identities(fallbacks_by_uid)
+
+    serialize_start = time.perf_counter()
+    items: list[CrewProjectCrmResponse] = []
+    for project_id, rows in grouped.items():
+        active_rows = [
+            (crew_member_id, data)
+            for crew_member_id, data in rows
+            if str(data.get("status") or "").strip().upper() != "REMOVED"
+        ]
+        project_data = projects_by_id.get(project_id, {})
+        project_title = (
+            project_data.get("title")
+            or next((data.get("project_title") or data.get("project_name") for _, data in rows if data.get("project_title") or data.get("project_name")), "")
+        )
+        members = None
+        if not summary:
+            members = [
+                ProjectCrewMemberResponse(
+                    **_talent_project_participant(
+                        project_id,
+                        crew_member_id,
+                        data,
+                        identities_by_uid.get(data.get("talent_user_id") or data.get("talent_uid", "")),
+                    )
+                )
+                for crew_member_id, data in rows
+            ]
+
+        items.append(
+            CrewProjectCrmResponse(
+                project_id=project_id,
+                project_title=project_title or "",
+                members_count=len(active_rows),
+                status=_crew_project_status(active_rows or rows),
+                last_activity=_crew_last_activity(rows),
+                members=members,
+            )
+        )
+
+    items.sort(key=lambda item: item.last_activity or "", reverse=True)
+    print(
+        "[PERF] crew CRM serialize "
+        f"(projects={len(items)}, summary={summary}): {(time.perf_counter() - serialize_start) * 1000:.2f} ms"
+    )
+    print(f"[PERF] crew CRM total: {(time.perf_counter() - start) * 1000:.2f} ms")
+    return items
 
 
 def list_talent_crew(current_user: CurrentUser) -> list[CrewMemberResponse]:
@@ -461,7 +594,7 @@ def update_crew_member(
     allowed_updates = {
         key: value
         for key, value in updates.items()
-        if key in {"role", "task_description", "producer_note"}
+        if key in {"role", "category", "task_description", "status", "producer_note"}
     }
     allowed_updates["updated_at"] = utc_now_iso()
 
@@ -472,6 +605,52 @@ def update_crew_member(
     }
     crew_member_doc.reference.set(updated_data)
     return _serialize_crew_member(crew_member_doc.id, updated_data)
+
+
+def update_project_crew_member(
+    project_id: str,
+    crew_member_id: str,
+    payload: CrewMemberUpdateRequest,
+    current_user: CurrentUser,
+) -> ProjectCrewMemberResponse:
+    _validate_project_owner(project_id, current_user)
+    crew_member_doc, crew_member_data = _get_project_crew_member_doc(project_id, crew_member_id)
+    updates = {
+        key: value
+        for key, value in payload.model_dump(exclude_unset=True).items()
+        if key in {"role", "category", "task_description", "status"}
+    }
+    if not updates:
+        raise HTTPException(status_code=400, detail="Debes enviar role, category, task_description o status")
+
+    updated_data = {
+        **crew_member_data,
+        **updates,
+        "id": crew_member_data.get("id") or crew_member_doc.id,
+        "updated_at": utc_now_iso(),
+    }
+    crew_member_doc.reference.set(updated_data)
+    return _project_crew_member_response(project_id, crew_member_doc.id, updated_data)
+
+
+def remove_project_crew_member(
+    project_id: str,
+    crew_member_id: str,
+    current_user: CurrentUser,
+) -> ProjectCrewMemberResponse:
+    _validate_project_owner(project_id, current_user)
+    crew_member_doc, crew_member_data = _get_project_crew_member_doc(project_id, crew_member_id)
+    timestamp = utc_now_iso()
+    updated_data = {
+        **crew_member_data,
+        "id": crew_member_data.get("id") or crew_member_doc.id,
+        "status": "REMOVED",
+        "removed_at": timestamp,
+        "removed_by": current_user.uid,
+        "updated_at": timestamp,
+    }
+    crew_member_doc.reference.set(updated_data)
+    return _project_crew_member_response(project_id, crew_member_doc.id, updated_data)
 
 
 def create_crew_message(
@@ -609,6 +788,22 @@ def _list_active_project_member_docs(
     return member_docs
 
 
+def _list_project_member_docs(project_id: str) -> list[tuple[str, dict]]:
+    start = time.perf_counter()
+    member_docs = [
+        (doc.id, doc.to_dict() or {})
+        for doc in db.collection("crew_members")
+        .where(filter=FieldFilter("project_id", "==", project_id))
+        .stream()
+    ]
+    print(
+        "[PERF] project CRM roster Firestore crew_members query "
+        f"(project_id={project_id}, reads={len(member_docs)}): "
+        f"{(time.perf_counter() - start) * 1000:.2f} ms"
+    )
+    return member_docs
+
+
 def _denormalized_project_identity(user_uid: str, fallback: dict | None = None) -> dict:
     fallback_data = fallback or {}
     return {
@@ -712,13 +907,24 @@ def _get_project_user_identities(fallbacks_by_uid: dict[str, dict]) -> dict[str,
     return identities
 
 
+def _project_owner_uid(project_data: dict) -> str:
+    return (
+        project_data.get("owner_uid")
+        or project_data.get("created_by")
+        or project_data.get("producer_id")
+        or project_data.get("owner_id")
+        or project_data.get("user_id")
+        or ""
+    )
+
+
 def _producer_project_participant(
     project_id: str,
     project_data: dict,
     identity: dict | None = None,
     hydrate_identity: bool = True,
 ) -> dict:
-    owner_uid = project_data.get("owner_uid", "")
+    owner_uid = _project_owner_uid(project_data)
     resolved_identity = identity or (
         _get_project_user_identity(owner_uid, project_data)
         if hydrate_identity
@@ -729,9 +935,12 @@ def _producer_project_participant(
         "id": f"{project_id}__producer__{owner_uid}",
         "project_id": project_id,
         "role": "PRODUCER",
+        "category": "PRODUCER",
         "task_description": None,
         "status": "ACTIVE",
         "joined_at": serialize_date(project_data.get("created_at")),
+        "opportunity_title": None,
+        "application_status": None,
     }
 
 
@@ -752,10 +961,14 @@ def _talent_project_participant(
         **resolved_identity,
         "id": data.get("id") or crew_member_id,
         "project_id": project_id,
+        "talent_uid": talent_uid,
         "role": data.get("role"),
+        "category": data.get("category"),
         "task_description": data.get("task_description"),
         "status": data.get("status", ""),
         "joined_at": serialize_date(data.get("joined_at") or data.get("created_at")),
+        "opportunity_title": data.get("opportunity_title"),
+        "application_status": data.get("application_status"),
     }
 
 
@@ -766,7 +979,7 @@ def _get_project_participant(
     member_docs: list[tuple[str, dict]],
     hydrate_identity: bool = True,
 ) -> dict | None:
-    if project_data.get("owner_uid") == user_uid:
+    if _project_owner_uid(project_data) == user_uid:
         return _producer_project_participant(project_id, project_data, hydrate_identity=hydrate_identity)
 
     for crew_member_id, data in member_docs:
@@ -797,7 +1010,7 @@ def _validate_project_access(
         hydrate_identity=hydrate_participant,
     )
 
-    is_owner = current_user.role.value == "PRODUCER" and project_data.get("owner_uid") == current_user.uid
+    is_owner = _is_project_owner(project_data, current_user)
     is_active_talent = current_user.role.value == "TALENT" and any(
         (data.get("talent_user_id") or data.get("talent_uid")) == current_user.uid
         for _, data in member_docs
@@ -808,15 +1021,69 @@ def _validate_project_access(
     return project_data, member_docs, participant
 
 
+def _is_project_owner(project_data: dict, current_user: CurrentUser) -> bool:
+    return current_user.role.value == "PRODUCER" and _project_owner_uid(project_data) == current_user.uid
+
+
+def _validate_project_owner(project_id: str, current_user: CurrentUser) -> dict:
+    project_data = _get_project_data(project_id)
+    if not _is_project_owner(project_data, current_user):
+        raise HTTPException(status_code=403, detail="Solo el productor dueno puede editar el crew del proyecto")
+    return project_data
+
+
+def _get_project_crew_member_doc(project_id: str, crew_member_id: str):
+    crew_member_doc = _get_crew_member_doc(crew_member_id)
+    crew_member_data = crew_member_doc.to_dict() or {}
+    if crew_member_data.get("project_id") != project_id:
+        raise HTTPException(status_code=404, detail="Integrante de equipo no encontrado en este proyecto")
+    return crew_member_doc, crew_member_data
+
+
+def _applications_by_id(application_ids: set[str]) -> dict[str, dict]:
+    return _get_documents_by_id("applications", application_ids)
+
+
+def _project_crew_member_response(
+    project_id: str,
+    crew_member_id: str,
+    data: dict,
+) -> ProjectCrewMemberResponse:
+    talent_uid = data.get("talent_user_id") or data.get("talent_uid", "")
+    identity = _get_project_user_identities({talent_uid: data}).get(talent_uid)
+    application_status = None
+    if data.get("application_id"):
+        application_status = _applications_by_id({data.get("application_id")}).get(
+            data.get("application_id"),
+            {},
+        ).get("status")
+
+    return ProjectCrewMemberResponse(
+        **_talent_project_participant(
+            project_id,
+            crew_member_id,
+            {
+                **data,
+                "application_status": application_status,
+            },
+            identity,
+        )
+    )
+
+
 def list_project_members(project_id: str, current_user: CurrentUser) -> ProjectCrewMembersResponse:
     start = time.perf_counter()
-    project_data, member_docs, _ = _validate_project_access(
-        project_id,
-        current_user,
-        hydrate_participant=False,
-        filter_member_status_in_query=True,
-    )
-    owner_uid = project_data.get("owner_uid", "")
+    project_data = _get_project_data(project_id)
+    if _is_project_owner(project_data, current_user):
+        member_docs = _list_project_member_docs(project_id)
+    else:
+        _, member_docs, _ = _validate_project_access(
+            project_id,
+            current_user,
+            hydrate_participant=False,
+            filter_member_status_in_query=True,
+        )
+    owner_uid = _project_owner_uid(project_data)
     fallbacks_by_uid = {
         **({owner_uid: project_data} if owner_uid else {}),
         **{
@@ -826,6 +1093,13 @@ def list_project_members(project_id: str, current_user: CurrentUser) -> ProjectC
         },
     }
     identities_by_uid = _get_project_user_identities(fallbacks_by_uid)
+    applications_by_id = _applications_by_id(
+        {
+            data.get("application_id")
+            for _, data in member_docs
+            if data.get("application_id")
+        }
+    )
     items = [
         ProjectCrewMemberResponse(
             **_producer_project_participant(project_id, project_data, identities_by_uid.get(owner_uid))
@@ -835,7 +1109,10 @@ def list_project_members(project_id: str, current_user: CurrentUser) -> ProjectC
                 **_talent_project_participant(
                     project_id,
                     crew_member_id,
-                    data,
+                    {
+                        **data,
+                        "application_status": applications_by_id.get(data.get("application_id"), {}).get("status"),
+                    },
                     identities_by_uid.get(data.get("talent_user_id") or data.get("talent_uid", "")),
                 )
             )

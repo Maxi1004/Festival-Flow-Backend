@@ -24,6 +24,8 @@ from app.schemas.auth_schema import CurrentUser
 from app.services.crew_service import create_or_update_crew_member, get_user_identity
 from app.services.opportunity_service import _get_opportunity_owned_by_user, _owner_id_from_data
 
+TERMINAL_APPLICATION_STATUSES = {"ACCEPTED", "REJECTED", "CANCELLED"}
+
 
 def _get_talent_user_id(data: dict) -> str:
     return (
@@ -67,15 +69,42 @@ def _get_first_portfolio_url(profile_data: dict) -> str | None:
     return None
 
 
-def _serialize_opportunity_application(application_id: str, data: dict) -> OpportunityApplicationResponse:
-    talent_uid = _get_talent_user_id(data)
-    talent = get_user_identity(talent_uid, data)
+def _first_present(data: dict, keys: tuple[str, ...], default: str = "") -> str:
+    for key in keys:
+        value = data.get(key)
+        if value:
+            return str(value)
+    return default
 
-    profile_data = {}
-    if talent_uid:
-        profile_doc = db.collection("talent_profiles").document(talent_uid).get()
-        if profile_doc.exists:
-            profile_data = profile_doc.to_dict() or {}
+
+def _serialize_opportunity_application(
+    application_id: str,
+    data: dict,
+    users_by_id: dict[str, dict] | None = None,
+    profiles_by_id: dict[str, dict] | None = None,
+) -> OpportunityApplicationResponse:
+    talent_uid = _get_talent_user_id(data)
+    user_data = (users_by_id or {}).get(talent_uid, {})
+    profile_data = (profiles_by_id or {}).get(talent_uid, {})
+    if not users_by_id and not profiles_by_id:
+        talent = get_user_identity(talent_uid, data)
+        if talent_uid:
+            profile_doc = db.collection("talent_profiles").document(talent_uid).get()
+            if profile_doc.exists:
+                profile_data = profile_doc.to_dict() or {}
+        talent_name = talent.name
+        talent_email = talent.email
+    else:
+        talent_name = _first_present(
+            profile_data,
+            ("display_name", "name", "full_name", "nombre"),
+            _first_present(
+                user_data,
+                ("name", "display_name", "full_name", "nombre"),
+                _first_present(data, ("talent_name", "name", "display_name", "full_name", "nombre")),
+            ),
+        )
+        talent_email = _first_present(user_data, ("email",), _first_present(data, ("talent_email", "email")))
 
     return OpportunityApplicationResponse(
         id=data.get("id") or application_id,
@@ -85,8 +114,8 @@ def _serialize_opportunity_application(application_id: str, data: dict) -> Oppor
         created_at=serialize_date(data.get("created_at") or data.get("applied_at")),
         talent=ApplicationTalentSummary(
             user_id=talent_uid,
-            name=talent.name,
-            email=talent.email,
+            name=talent_name,
+            email=talent_email,
         ),
         profile=ApplicationTalentProfile(
             specialties=profile_data.get("specialties", []),
@@ -478,7 +507,18 @@ def list_opportunity_applications(
     _get_opportunity_owned_by_user(opportunity_id, current_user)
 
     query = db.collection("applications").where("opportunity_id", "==", opportunity_id)
-    items = [_serialize_opportunity_application(doc.id, doc.to_dict() or {}) for doc in query.stream()]
+    application_rows = [(doc.id, doc.to_dict() or {}) for doc in query.stream()]
+    talent_uids = {
+        talent_uid
+        for _, data in application_rows
+        if (talent_uid := _get_talent_user_id(data))
+    }
+    users_by_id = _get_documents_by_id("users", talent_uids)
+    profiles_by_id = _get_documents_by_id("talent_profiles", talent_uids)
+    items = [
+        _serialize_opportunity_application(doc_id, data, users_by_id, profiles_by_id)
+        for doc_id, data in application_rows
+    ]
     return sorted(items, key=lambda item: item.created_at or "", reverse=True)
 
 
@@ -493,6 +533,13 @@ def update_application_status(
         raise HTTPException(status_code=404, detail="Postulacion no encontrada")
 
     application_data = application_doc.to_dict() or {}
+    current_status = _normalize_application_status(application_data.get("status"))
+    if current_status in TERMINAL_APPLICATION_STATUSES:
+        raise HTTPException(
+            status_code=409,
+            detail=f"La postulacion ya esta en estado terminal: {current_status}",
+        )
+
     opportunity_id = application_data.get("opportunity_id")
     if not opportunity_id:
         raise HTTPException(status_code=400, detail="La postulacion no tiene convocatoria asociada")
@@ -522,6 +569,7 @@ def update_application_status(
             recruitment_id=None,
             source="APPLICATION",
             role=opportunity_data.get("title") or opportunity_data.get("role_needed"),
+            category=opportunity_data.get("category") or opportunity_data.get("specialty"),
             task_description=opportunity_data.get("description") or application_data.get("message"),
             producer_note=None,
             opportunity_title=opportunity_data.get("title"),

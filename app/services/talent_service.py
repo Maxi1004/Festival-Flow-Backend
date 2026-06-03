@@ -10,6 +10,7 @@ from app.core.utils import utc_now_iso
 from app.schemas.auth_schema import CurrentUser
 from app.schemas.talent_schema import (
     AvailabilityStatus,
+    AvailableTalentCrmResponse,
     AvailableTalentProfile,
     AvailableTalentResponse,
     TalentAvailabilityResponse,
@@ -26,6 +27,7 @@ DEFAULT_AVAILABILITY_STATUS = AvailabilityStatus.UNAVAILABLE
 DEFAULT_WORK_MODALITY = WorkModality.REMOTE
 MAX_AVAILABLE_TALENT_CANDIDATES = 200
 MAX_TALENT_COMMITMENT_CANDIDATES = 100
+MAX_CREW_ASSIGNMENT_CANDIDATES = 500
 
 
 def _clean_text(value: Any) -> str:
@@ -346,7 +348,7 @@ def _availability_filter(availability: str | None):
 
     target_status = _normalize_availability_status(availability)
     if target_status == AvailabilityStatus.AVAILABLE:
-        values = ["AVAILABLE", "available", "Disponible", "disponible", "Si", "si", "SÃƒÂ­", "sÃƒÂ­"]
+        values = ["AVAILABLE", "available", "Disponible", "disponible", "Si", "si"]
     else:
         values = ["UNAVAILABLE", "unavailable", "No disponible", "no disponible", "Indisponible", "indisponible"]
 
@@ -356,6 +358,111 @@ def _availability_filter(availability: str | None):
             FieldFilter("availability_status", "in", values),
         ]
     )
+
+
+def _get_documents_by_id(collection_name: str, document_ids: set[str]) -> dict[str, dict]:
+    document_refs = [
+        db.collection(collection_name).document(document_id)
+        for document_id in document_ids
+        if document_id
+    ]
+    if not document_refs:
+        return {}
+
+    start = time.perf_counter()
+    documents = {
+        doc.id: doc.to_dict() or {}
+        for doc in db.get_all(document_refs)
+        if doc.exists
+    }
+    print(
+        f"[PERF] talent CRM batch {collection_name} "
+        f"(requested={len(document_refs)}, reads={len(documents)}): "
+        f"{(time.perf_counter() - start) * 1000:.2f} ms"
+    )
+    return documents
+
+
+def _get_crew_project_id(crew_data: dict) -> str | None:
+    return (
+        crew_data.get("project_id")
+        or crew_data.get("projectId")
+        or crew_data.get("project_uid")
+    )
+
+
+def _get_crew_opportunity_id(crew_data: dict) -> str | None:
+    return crew_data.get("opportunity_id") or crew_data.get("opportunityId")
+
+
+def _get_crew_user_id(crew_data: dict) -> str | None:
+    return (
+        crew_data.get("user_uid")
+        or crew_data.get("talent_uid")
+        or crew_data.get("talent_user_id")
+        or crew_data.get("talent_id")
+        or crew_data.get("user_id")
+    )
+
+
+def _is_active_crew_member(crew_data: dict) -> bool:
+    status = str(crew_data.get("status") or "").strip().upper()
+    return status in {"ACTIVE", "ACCEPTED"}
+
+
+def _is_recruitable_project(project_data: dict) -> bool:
+    status = str(project_data.get("status") or "").strip().upper()
+
+    if status in {"CANCELLED", "CANCELED", "CLOSED", "COMPLETED", "FINISHED"}:
+        return False
+
+    return True
+
+
+def _get_assigned_talent_ids() -> set[str]:
+    assigned_talent_ids: set[str] = set()
+    active_crew_items: list[dict] = []
+    project_ids: set[str] = set()
+
+    crew_docs = (
+        db.collection("crew_members")
+        .where(filter=FieldFilter("status", "in", ["ACTIVE", "ACCEPTED", "active", "accepted"]))
+        .limit(MAX_CREW_ASSIGNMENT_CANDIDATES)
+        .stream()
+    )
+
+    for crew_doc in crew_docs:
+        crew_data = crew_doc.to_dict() or {}
+        talent_id = _get_crew_user_id(crew_data)
+        project_id = _get_crew_project_id(crew_data)
+
+        if not talent_id:
+            continue
+
+        if project_id:
+            project_ids.add(project_id)
+
+        active_crew_items.append(crew_data)
+
+    projects_by_id = _get_documents_by_id("projects", project_ids)
+
+    for crew_data in active_crew_items:
+        talent_id = _get_crew_user_id(crew_data)
+        project_id = _get_crew_project_id(crew_data)
+
+        if not talent_id:
+            continue
+
+        if not project_id:
+            assigned_talent_ids.add(talent_id)
+            continue
+
+        project_data = projects_by_id.get(project_id, {})
+
+        if not project_data or _is_recruitable_project(project_data):
+            assigned_talent_ids.add(talent_id)
+
+    return assigned_talent_ids
 
 
 def list_available_talents(
@@ -368,6 +475,7 @@ def list_available_talents(
     limit: int = 40,
 ) -> list[AvailableTalentResponse]:
     items: list[AvailableTalentResponse] = []
+    assigned_talent_ids = _get_assigned_talent_ids()
     candidate_limit = min(MAX_AVAILABLE_TALENT_CANDIDATES, max(limit * 5, 50))
     query = db.collection("talent_availability")
     availability_filter = _availability_filter(availability)
@@ -390,6 +498,10 @@ def list_available_talents(
             continue
 
         user_id = availability_data.get("user_id") or availability_data.get("user_uid") or availability_doc.id
+
+        if user_id in assigned_talent_ids:
+            continue
+
         user_doc = db.collection("users").document(user_id).get()
         if not user_doc.exists:
             continue
@@ -456,37 +568,118 @@ def list_available_talents(
     return sorted(items, key=lambda item: item.available_from or "")
 
 
-def _get_documents_by_id(collection_name: str, document_ids: set[str]) -> dict[str, dict]:
-    document_refs = [
-        db.collection(collection_name).document(document_id)
-        for document_id in document_ids
-        if document_id
-    ]
-    if not document_refs:
-        return {}
-
-    return {
-        doc.id: doc.to_dict() or {}
-        for doc in db.get_all(document_refs)
-        if doc.exists
-    }
-
-
-def _get_crew_project_id(crew_data: dict) -> str | None:
-    return (
-        crew_data.get("project_id")
-        or crew_data.get("projectId")
-        or crew_data.get("project_uid")
+def list_available_talents_crm(
+    *,
+    search: str | None = None,
+    category: str | None = None,
+    location: str | None = None,
+    language: str | None = None,
+    availability: str | None = "AVAILABLE",
+    limit: int = 40,
+) -> list[AvailableTalentCrmResponse]:
+    start = time.perf_counter()
+    assigned_start = time.perf_counter()
+    assigned_talent_ids = _get_assigned_talent_ids()
+    print(
+        "[PERF] talent availability CRM assigned crew filter "
+        f"(assigned={len(assigned_talent_ids)}): {(time.perf_counter() - assigned_start) * 1000:.2f} ms"
     )
 
+    candidate_limit = min(MAX_AVAILABLE_TALENT_CANDIDATES, max(limit * 5, 50))
+    query = db.collection("talent_availability")
+    availability_filter = _availability_filter(availability)
+    if availability_filter is not None:
+        query = query.where(filter=availability_filter)
+    query = query.order_by("__name__").limit(candidate_limit)
 
-def _get_crew_opportunity_id(crew_data: dict) -> str | None:
-    return crew_data.get("opportunity_id") or crew_data.get("opportunityId")
+    query_start = time.perf_counter()
+    availability_rows = [
+        (doc.id, doc.to_dict() or {})
+        for doc in query.stream()
+    ]
+    print(
+        "[PERF] talent availability CRM availability query "
+        f"(reads={len(availability_rows)}, limit={candidate_limit}): "
+        f"{(time.perf_counter() - query_start) * 1000:.2f} ms"
+    )
 
+    candidate_rows: list[tuple[str, dict]] = []
+    for doc_id, availability_data in availability_rows:
+        user_id = availability_data.get("user_id") or availability_data.get("user_uid") or doc_id
+        if user_id in assigned_talent_ids:
+            continue
+        if not _matches_text(
+            availability_data.get("location") or availability_data.get("work_location"),
+            location,
+        ):
+            continue
+        candidate_rows.append((user_id, availability_data))
 
-def _is_active_crew_member(crew_data: dict) -> bool:
-    status = crew_data.get("status")
-    return not status or str(status).upper() == "ACTIVE"
+    candidate_user_ids = {user_id for user_id, _ in candidate_rows}
+    users_by_id = _get_documents_by_id("users", candidate_user_ids)
+    profiles_by_id = _get_documents_by_id("talent_profiles", candidate_user_ids)
+
+    serialize_start = time.perf_counter()
+    items: list[AvailableTalentCrmResponse] = []
+    for user_id, availability_data in candidate_rows:
+        user_data = users_by_id.get(user_id, {})
+        if user_data.get("role") != "TALENT":
+            continue
+
+        profile_data = profiles_by_id.get(user_id, {})
+        specialties = _normalize_text_list(profile_data.get("specialties"))
+        languages = _normalize_text_list(profile_data.get("languages"))
+        skills = _normalize_text_list(profile_data.get("skills"))
+        category_values = [
+            profile_data.get("main_specialty"),
+            *specialties,
+            *skills,
+        ]
+        name_values = [
+            user_data.get("name"),
+            profile_data.get("display_name"),
+        ]
+
+        if not _matches_any(name_values, search):
+            continue
+        if not _matches_any(category_values, category):
+            continue
+        if not _matches_any(languages, language):
+            continue
+
+        items.append(
+            AvailableTalentCrmResponse(
+                user_id=user_id,
+                name=user_data.get("name") or profile_data.get("display_name") or "",
+                email=user_data.get("email", ""),
+                photo_url=(
+                    profile_data.get("photo_url")
+                    or user_data.get("photo_url")
+                    or user_data.get("picture")
+                    or profile_data.get("picture")
+                    or profile_data.get("avatar_url")
+                ),
+                specialty=profile_data.get("main_specialty") or (specialties[0] if specialties else ""),
+                location=availability_data.get("location") or availability_data.get("work_location"),
+                modality=_normalize_work_modality(
+                    availability_data.get("work_modality") or availability_data.get("modality")
+                ),
+                status=_normalize_availability_status(
+                    availability_data.get("status") or availability_data.get("availability_status")
+                ),
+                available_from=_serialize_available_from(availability_data.get("available_from")),
+            )
+        )
+        if len(items) >= limit:
+            break
+
+    items.sort(key=lambda item: item.available_from or "")
+    print(
+        "[PERF] talent availability CRM serialize "
+        f"(items={len(items)}): {(time.perf_counter() - serialize_start) * 1000:.2f} ms"
+    )
+    print(f"[PERF] talent availability CRM total: {(time.perf_counter() - start) * 1000:.2f} ms")
+    return items
 
 
 def get_talent_availability_commitments(
@@ -500,6 +693,9 @@ def get_talent_availability_commitments(
                 [
                     FieldFilter("talent_user_id", "==", current_user.uid),
                     FieldFilter("talent_id", "==", current_user.uid),
+                    FieldFilter("talent_uid", "==", current_user.uid),
+                    FieldFilter("user_uid", "==", current_user.uid),
+                    FieldFilter("user_id", "==", current_user.uid),
                 ]
             )
         )

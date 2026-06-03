@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from app.core.security import require_role
 from app.schemas.auth_schema import CurrentUser, UserRole
 from app.schemas.talent_schema import (
+    AvailableTalentCrmResponse,
     AvailableTalentResponse,
     TalentAvailabilityResponse,
     TalentAvailabilityUpsertRequest,
@@ -18,6 +19,7 @@ from app.services.talent_service import (
     get_talent_availability,
     get_talent_profile,
     list_available_talents,
+    list_available_talents_crm,
     upsert_talent_availability,
     upsert_talent_profile,
     update_talent_profile_photo,
@@ -147,6 +149,26 @@ async def get_available_talents(
     current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
 ):
     return list_available_talents(
+        search=search,
+        category=category,
+        location=location,
+        language=language,
+        availability=availability,
+        limit=limit,
+    )
+
+
+@router.get("/availability/crm", response_model=list[AvailableTalentCrmResponse])
+async def get_available_talents_crm(
+    search: str | None = Query(default=None),
+    category: str | None = Query(default=None),
+    location: str | None = Query(default=None),
+    language: str | None = Query(default=None),
+    availability: str = Query(default="AVAILABLE"),
+    limit: int = Query(default=40, ge=1, le=100),
+    current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
+):
+    return list_available_talents_crm(
         search=search,
         category=category,
         location=location,

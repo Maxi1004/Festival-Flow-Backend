@@ -69,4 +69,5 @@ class CurrentUser(BaseModel):
     role: UserRole
     provider: str | None = None
     picture: str | None = None
+    photo_url: str | None = None
     created_at: str | None = None

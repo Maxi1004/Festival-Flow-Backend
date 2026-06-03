@@ -10,9 +10,11 @@ from app.routes.auth import router as auth_router
 from app.routes.crew import router as crew_router
 from app.routes.dashboard import router as dashboard_router
 from app.routes.opportunities import router as opportunities_router
+from app.routes.producer import router as producer_router
 from app.routes.projects import router as projects_router
 from app.routes.recruitments import router as recruitments_router
 from app.routes.talent import router as talent_router
+from app.routes.translation import router as translation_router
 
 app = FastAPI(title="Festival Flow API")
 
@@ -48,6 +50,7 @@ async def log_request_timing(request: Request, call_next):
         "/recruitments/me/feed",
         "/recruitments/me/summary",
         "/talent/profile/me",
+        "/producer/profile/me",
     }:
         print(
             f"[PERF] HTTP {request.method} {request.url.path} total: "
@@ -70,11 +73,13 @@ async def test_db():
 
 app.include_router(auth_router, prefix="/auth")
 app.include_router(talent_router, prefix="/talent")
+app.include_router(producer_router, prefix="/producer")
 app.include_router(projects_router)
 app.include_router(opportunities_router)
 app.include_router(applications_router)
 app.include_router(recruitments_router)
 app.include_router(crew_router)
 app.include_router(dashboard_router)
+app.include_router(translation_router)
 
 #7

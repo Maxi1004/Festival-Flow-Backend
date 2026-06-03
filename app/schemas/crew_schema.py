@@ -46,7 +46,9 @@ class CrewMemberUpdateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     role: str | None = None
+    category: str | None = None
     task_description: str | None = None
+    status: str | None = None
     producer_note: str | None = None
 
 
@@ -66,17 +68,30 @@ class ProjectCrewMemberResponse(BaseModel):
     id: str
     project_id: str
     user_uid: str
+    talent_uid: str | None = None
     name: str
     email: str
     photo_url: str | None = None
     role: str | None = None
+    category: str | None = None
     task_description: str | None = None
     status: str
     joined_at: str | None = None
+    opportunity_title: str | None = None
+    application_status: str | None = None
 
 
 class ProjectCrewMembersResponse(BaseModel):
     items: list[ProjectCrewMemberResponse] = Field(default_factory=list)
+
+
+class CrewProjectCrmResponse(BaseModel):
+    project_id: str
+    project_title: str = ""
+    members_count: int = 0
+    status: str = ""
+    last_activity: str | None = None
+    members: list[ProjectCrewMemberResponse] | None = None
 
 
 class ProjectMessageCreateRequest(BaseModel):

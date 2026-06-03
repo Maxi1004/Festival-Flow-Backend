@@ -38,6 +38,9 @@ class DashboardAvailableTalentSummary(BaseModel):
     user_id: str
     name: str
     email: str
+    photo_url: str | None = None
+    picture: str | None = None
+    avatar_url: str | None = None
     status: AvailabilityStatus
     travel_availability: bool
     work_modality: WorkModality
@@ -58,11 +61,38 @@ class ProducerDashboardResponse(BaseModel):
     available_talents: list[DashboardAvailableTalentSummary]
 
 
+class ProducerDashboardQuickResponse(BaseModel):
+    projects_count: int
+    opportunities_count: int
+    active_opportunities_count: int
+    closed_opportunities_count: int
+
+
+class ProducerDashboardDetailsResponse(BaseModel):
+    latest_projects: list[DashboardProjectSummary]
+    active_opportunities: list[DashboardOpportunitySummary]
+    closed_opportunities: list[DashboardOpportunitySummary]
+    available_talents: list[DashboardAvailableTalentSummary]
+
+
 class TalentDashboardResponse(BaseModel):
     profile_completion: int
     main_specialty: str
     location: str
     applications_count: int
     opportunities_count: int
+    available_opportunities: list[DashboardOpportunitySummary]
+    applications: list[DashboardApplicationSummary]
+
+
+class TalentDashboardQuickResponse(BaseModel):
+    profile_completion: int
+    main_specialty: str
+    location: str
+    applications_count: int
+    opportunities_count: int
+
+
+class TalentDashboardDetailsResponse(BaseModel):
     available_opportunities: list[DashboardOpportunitySummary]
     applications: list[DashboardApplicationSummary]

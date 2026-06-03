@@ -1,14 +1,22 @@
+import time
+
 from fastapi import HTTPException
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 from app.core.firebase import db
 from app.core.utils import serialize_date, utc_now_iso
 from app.schemas.auth_schema import CurrentUser
 from app.schemas.opportunity_schema import (
     OpportunityCreateRequest,
+    OpportunityCrmResponse,
     OpportunityResponse,
     OpportunityStatusUpdateRequest,
     OpportunityUpdateRequest,
 )
+
+
+def _perf_ms(start: float) -> float:
+    return (time.perf_counter() - start) * 1000
 
 
 def _to_iso(value):
@@ -40,8 +48,17 @@ def _is_owned_by_current_user(data: dict, current_user: CurrentUser) -> bool:
     }
 
 
-def _serialize_opportunity(opportunity_id: str, data: dict) -> OpportunityResponse:
+def _serialize_opportunity(
+    opportunity_id: str,
+    data: dict,
+    applications_count: int | None = None,
+) -> OpportunityResponse:
     owner_id = _owner_id_from_data(data)
+    resolved_applications_count = (
+        applications_count
+        if applications_count is not None
+        else int(data.get("applications_count") or data.get("applicants_count") or 0)
+    )
     return OpportunityResponse(
         id=data.get("id") or opportunity_id,
         project_id=data.get("project_id"),
@@ -56,10 +73,86 @@ def _serialize_opportunity(opportunity_id: str, data: dict) -> OpportunityRespon
         modality=data.get("modality", ""),
         requirements=data.get("requirements", []),
         status=_normalize_status(data.get("status")),
+        applications_count=resolved_applications_count,
+        applicants_count=resolved_applications_count,
         deadline=_to_iso(data.get("deadline")),
         created_at=_to_iso(data.get("created_at")),
         updated_at=_to_iso(data.get("updated_at")),
     )
+
+
+def _chunks(items: list[str], size: int) -> list[list[str]]:
+    return [items[index:index + size] for index in range(0, len(items), size)]
+
+
+def _get_documents_by_id(collection_name: str, document_ids: set[str]) -> dict[str, dict]:
+    document_refs = [
+        db.collection(collection_name).document(document_id)
+        for document_id in document_ids
+        if document_id
+    ]
+    if not document_refs:
+        return {}
+
+    start = time.perf_counter()
+    documents = {
+        doc.id: doc.to_dict() or {}
+        for doc in db.get_all(document_refs)
+        if doc.exists
+    }
+    print(
+        f"[PERF] opportunities CRM batch {collection_name} "
+        f"(requested={len(document_refs)}, reads={len(documents)}): {_perf_ms(start):.2f} ms"
+    )
+    return documents
+
+
+def _application_counts_for_opportunities(
+    opportunity_ids: set[str],
+    current_user: CurrentUser,
+) -> dict[str, int]:
+    if not opportunity_ids:
+        return {}
+
+    counts: dict[str, int] = {opportunity_id: 0 for opportunity_id in opportunity_ids}
+    counted_application_ids: set[str] = set()
+
+    producer_start = time.perf_counter()
+    producer_query = db.collection("applications").where(
+        filter=FieldFilter("producer_uid", "==", current_user.uid)
+    ).select(["opportunity_id"])
+    for doc in producer_query.stream():
+        data = doc.to_dict() or {}
+        opportunity_id = data.get("opportunity_id")
+        if opportunity_id in counts and doc.id not in counted_application_ids:
+            counts[opportunity_id] += 1
+            counted_application_ids.add(doc.id)
+    print(
+        "[PERF] opportunities CRM applications producer count "
+        f"(matched={len(counted_application_ids)}): {_perf_ms(producer_start):.2f} ms"
+    )
+
+    fallback_start = time.perf_counter()
+    fallback_reads = 0
+    for opportunity_id_chunk in _chunks(list(opportunity_ids), 30):
+        fallback_query = db.collection("applications").where(
+            filter=FieldFilter("opportunity_id", "in", opportunity_id_chunk)
+        ).select(["opportunity_id"])
+        for doc in fallback_query.stream():
+            fallback_reads += 1
+            if doc.id in counted_application_ids:
+                continue
+            data = doc.to_dict() or {}
+            opportunity_id = data.get("opportunity_id")
+            if opportunity_id in counts:
+                counts[opportunity_id] += 1
+                counted_application_ids.add(doc.id)
+    print(
+        "[PERF] opportunities CRM applications fallback count "
+        f"(chunks={len(_chunks(list(opportunity_ids), 30))}, reads={fallback_reads}): {_perf_ms(fallback_start):.2f} ms"
+    )
+
+    return counts
 
 
 def list_opportunities(
@@ -171,15 +264,87 @@ def create_opportunity(
 
 
 def list_my_opportunities(current_user: CurrentUser) -> list[OpportunityResponse]:
-    items_by_id: dict[str, OpportunityResponse] = {}
+    opportunity_data_by_id: dict[str, dict] = {}
 
     for owner_field in ("owner_uid", "created_by", "producer_id", "owner_id", "user_id"):
         query = db.collection("opportunities").where(owner_field, "==", current_user.uid)
         for doc in query.stream():
-            items_by_id[doc.id] = _serialize_opportunity(doc.id, doc.to_dict() or {})
+            opportunity_data_by_id[doc.id] = doc.to_dict() or {}
 
-    items = list(items_by_id.values())
+    counts_by_opportunity_id = _application_counts_for_opportunities(
+        set(opportunity_data_by_id),
+        current_user,
+    )
+    items = [
+        _serialize_opportunity(
+            opportunity_id,
+            data,
+            counts_by_opportunity_id.get(opportunity_id, 0),
+        )
+        for opportunity_id, data in opportunity_data_by_id.items()
+    ]
     return sorted(items, key=lambda item: item.created_at or "", reverse=True)
+
+
+def _list_my_opportunity_data(current_user: CurrentUser) -> dict[str, dict]:
+    start = time.perf_counter()
+    opportunity_data_by_id: dict[str, dict] = {}
+
+    for owner_field in ("owner_uid", "created_by", "producer_id", "owner_id", "user_id"):
+        query_start = time.perf_counter()
+        query = db.collection("opportunities").where(owner_field, "==", current_user.uid)
+        docs = list(query.stream())
+        print(
+            f"[PERF] opportunities CRM owner query {owner_field} "
+            f"(reads={len(docs)}): {_perf_ms(query_start):.2f} ms"
+        )
+        for doc in docs:
+            opportunity_data_by_id[doc.id] = doc.to_dict() or {}
+
+    print(
+        "[PERF] opportunities CRM owner queries total "
+        f"(items={len(opportunity_data_by_id)}): {_perf_ms(start):.2f} ms"
+    )
+    return opportunity_data_by_id
+
+
+def list_my_opportunities_crm(current_user: CurrentUser) -> list[OpportunityCrmResponse]:
+    start = time.perf_counter()
+    opportunity_data_by_id = _list_my_opportunity_data(current_user)
+    counts_by_opportunity_id = _application_counts_for_opportunities(
+        set(opportunity_data_by_id),
+        current_user,
+    )
+    projects_by_id = _get_documents_by_id(
+        "projects",
+        {
+            data.get("project_id")
+            for data in opportunity_data_by_id.values()
+            if data.get("project_id")
+        },
+    )
+    serialize_start = time.perf_counter()
+    items = [
+        OpportunityCrmResponse(
+            id=data.get("id") or opportunity_id,
+            project_id=data.get("project_id"),
+            project_title=projects_by_id.get(data.get("project_id"), {}).get("title", ""),
+            title=data.get("title", ""),
+            role_needed=data.get("role_needed", ""),
+            specialty=data.get("specialty", ""),
+            status=_normalize_status(data.get("status")),
+            applications_count=counts_by_opportunity_id.get(opportunity_id, 0),
+            applicants_count=counts_by_opportunity_id.get(opportunity_id, 0),
+            deadline=_to_iso(data.get("deadline")),
+            created_at=_to_iso(data.get("created_at")),
+            updated_at=_to_iso(data.get("updated_at")),
+        )
+        for opportunity_id, data in opportunity_data_by_id.items()
+    ]
+    items.sort(key=lambda item: item.created_at or "", reverse=True)
+    print(f"[PERF] opportunities CRM serialize: {_perf_ms(serialize_start):.2f} ms")
+    print(f"[PERF] opportunities CRM total: {_perf_ms(start):.2f} ms")
+    return items
 
 
 def update_my_opportunity(

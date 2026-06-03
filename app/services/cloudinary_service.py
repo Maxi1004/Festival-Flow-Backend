@@ -56,6 +56,32 @@ def upload_talent_profile_photo(user_id: str, image_data: bytes) -> str:
     return secure_url
 
 
+def upload_producer_profile_photo(user_id: str, image_data: bytes) -> str:
+    _configure_cloudinary()
+
+    try:
+        result = cloudinary.uploader.upload(
+            BytesIO(image_data),
+            folder=f"FestivalFlow/producers/{user_id}",
+            public_id="profile-photo",
+            overwrite=True,
+            invalidate=True,
+            resource_type="image",
+        )
+    except Exception as error:
+        raise CloudinaryUploadError(
+            "Cloudinary no pudo subir la foto de perfil. Intenta nuevamente."
+        ) from error
+
+    secure_url = result.get("secure_url")
+    if not secure_url:
+        raise CloudinaryUploadError(
+            "Cloudinary no devolvio una URL segura para la foto de perfil."
+        )
+
+    return secure_url
+
+
 def upload_talent_portfolio_pdf(user_id: str, pdf_data: bytes) -> str:
     _configure_cloudinary()
 

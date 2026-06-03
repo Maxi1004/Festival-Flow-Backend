@@ -55,6 +55,19 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user)):
                 or profile_data.get("picture")
                 or profile_data.get("avatar_url")
             )
+    elif current_user.role == UserRole.PRODUCER:
+        profile_get_start = time.perf_counter()
+        profile_doc = db.collection("producer_profiles").document(current_user.uid).get()
+        print(
+            "[PERF] GET /auth/me Firestore producer_profiles/{uid}.get "
+            f"(reads=1): {(time.perf_counter() - profile_get_start) * 1000:.2f} ms"
+        )
+        profile_data = profile_doc.to_dict() or {} if profile_doc.exists else {}
+        photo_url = (
+            profile_data.get("photo_url")
+            or current_user.picture
+            or current_user.photo_url
+        )
 
     response = {
         "message": "Token valido",

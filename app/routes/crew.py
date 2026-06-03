@@ -9,9 +9,11 @@ from app.schemas.crew_schema import (
     CrewMemberUpdateRequest,
     CrewMessageCreateRequest,
     CrewMessageResponse,
+    CrewProjectCrmResponse,
     MessageConversationFeedResponse,
     MessageConversationInfoResponse,
     ProjectChatMessageResponse,
+    ProjectCrewMemberResponse,
     ProjectCrewMembersResponse,
     ProjectMessageCreateRequest,
     TalentCrewFeedResponse,
@@ -32,14 +34,17 @@ from app.services.crew_service import (
     list_message_conversations,
     list_my_message_conversations,
     list_producer_crew,
+    list_producer_crew_crm,
     list_project_chat_messages,
     list_project_members,
     list_talent_crew_feed,
     list_talent_crew,
     list_unified_conversation_messages,
+    remove_project_crew_member,
     update_team_conversation_settings,
     update_team_conversation_photo,
     update_crew_member,
+    update_project_crew_member,
     validate_team_conversation_photo_access,
 )
 from app.services.cloudinary_service import CloudinaryUploadError, upload_project_team_chat_photo
@@ -55,6 +60,14 @@ async def get_producer_crew(
     current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
 ):
     return list_producer_crew(current_user)
+
+
+@router.get("/crew/me/crm", response_model=list[CrewProjectCrmResponse])
+async def get_producer_crew_crm(
+    summary: bool = Query(default=True),
+    current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
+):
+    return list_producer_crew_crm(current_user, summary=summary)
 
 
 @router.get("/talent/crew", response_model=list[CrewMemberResponse])
@@ -87,6 +100,25 @@ async def get_project_members(
     current_user: CurrentUser = Depends(get_current_user),
 ):
     return list_project_members(project_id, current_user)
+
+
+@router.patch("/crew/projects/{project_id}/members/{member_id}", response_model=ProjectCrewMemberResponse)
+async def patch_project_member(
+    project_id: str,
+    member_id: str,
+    payload: CrewMemberUpdateRequest,
+    current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
+):
+    return update_project_crew_member(project_id, member_id, payload, current_user)
+
+
+@router.delete("/crew/projects/{project_id}/members/{member_id}", response_model=ProjectCrewMemberResponse)
+async def delete_project_member(
+    project_id: str,
+    member_id: str,
+    current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
+):
+    return remove_project_crew_member(project_id, member_id, current_user)
 
 
 @router.get("/crew/projects/{project_id}/team-chat/messages", response_model=list[ProjectChatMessageResponse])
