@@ -7,7 +7,7 @@ from google.cloud.firestore_v1 import Query
 from google.cloud.firestore_v1.base_query import FieldFilter, Or
 
 from app.core.firebase import db
-from app.core.utils import serialize_date, utc_now_iso
+from app.core.utils import get_talent_uid_from_data, serialize_date, utc_now_iso
 from app.schemas.application_schema import (
     ApplicationCreateRequest,
     ApplicationResponse,
@@ -28,14 +28,7 @@ TERMINAL_APPLICATION_STATUSES = {"ACCEPTED", "REJECTED", "CANCELLED"}
 
 
 def _get_talent_user_id(data: dict) -> str:
-    return (
-        data.get("talent_uid")
-        or data.get("talent_user_id")
-        or data.get("user_id")
-        or data.get("user_uid")
-        or data.get("talent_id")
-        or ""
-    )
+    return get_talent_uid_from_data(data) or ""
 
 
 def _talent_filter(talent_uid: str) -> Or:
@@ -77,6 +70,13 @@ def _first_present(data: dict, keys: tuple[str, ...], default: str = "") -> str:
     return default
 
 
+def _normalize_text_list(value) -> list[str]:
+    if value is None:
+        return []
+    items = value if isinstance(value, list) else str(value).split(",")
+    return [str(item).strip() for item in items if str(item).strip()]
+
+
 def _serialize_opportunity_application(
     application_id: str,
     data: dict,
@@ -106,23 +106,52 @@ def _serialize_opportunity_application(
         )
         talent_email = _first_present(user_data, ("email",), _first_present(data, ("talent_email", "email")))
 
+    photo_url = _first_present(
+        profile_data,
+        ("photo_url", "picture", "avatar_url"),
+        _first_present(
+            user_data,
+            ("photo_url", "picture", "avatar_url"),
+            _first_present(data, ("photo_url", "talent_photo_url", "picture", "avatar_url")),
+        ),
+    ) or None
+    talent_profile = ApplicationTalentProfile(
+        display_name=_first_present(
+            profile_data,
+            ("display_name", "name"),
+            talent_name,
+        ),
+        bio=_first_present(profile_data, ("bio",)),
+        main_specialty=_first_present(profile_data, ("main_specialty", "specialty")),
+        specialties=_normalize_text_list(profile_data.get("specialties")),
+        skills=_normalize_text_list(profile_data.get("skills")),
+        languages=_normalize_text_list(profile_data.get("languages")),
+        experience_years=profile_data.get("experience_years"),
+        photo_url=photo_url,
+        portfolio_url=_get_first_portfolio_url(profile_data),
+        portfolio_pdf_url=profile_data.get("portfolio_pdf_url"),
+    )
+
     return OpportunityApplicationResponse(
         id=data.get("id") or application_id,
         opportunity_id=data.get("opportunity_id", ""),
+        user_id=talent_uid,
+        talent_user_id=talent_uid,
+        talent_name=talent_name,
+        talent_email=talent_email,
+        photo_url=photo_url,
         status=data.get("status", ""),
         message=data.get("message", ""),
         created_at=serialize_date(data.get("created_at") or data.get("applied_at")),
         talent=ApplicationTalentSummary(
             user_id=talent_uid,
+            user_uid=talent_uid,
             name=talent_name,
             email=talent_email,
+            photo_url=photo_url,
         ),
-        profile=ApplicationTalentProfile(
-            specialties=profile_data.get("specialties", []),
-            skills=profile_data.get("skills", []),
-            experience_years=profile_data.get("experience_years"),
-            portfolio_url=_get_first_portfolio_url(profile_data),
-        ),
+        profile=talent_profile,
+        talent_profile=talent_profile,
     )
 
 
@@ -183,6 +212,70 @@ def _get_documents_by_id(collection_name: str, document_ids: set[str]) -> dict[s
         f"{(time.perf_counter() - start) * 1000:.2f} ms"
     )
     return documents
+
+
+def _chunks(items: list[str], size: int = 30) -> list[list[str]]:
+    return [items[index:index + size] for index in range(0, len(items), size)]
+
+
+def _get_users_by_field(field_name: str, values: set[str]) -> list[tuple[str, dict]]:
+    normalized_values = sorted({str(value).strip() for value in values if str(value).strip()})
+    rows: list[tuple[str, dict]] = []
+    for values_chunk in _chunks(normalized_values):
+        query = db.collection("users").where(
+            filter=FieldFilter(field_name, "in", values_chunk)
+        )
+        rows.extend((doc.id, doc.to_dict() or {}) for doc in query.stream())
+    return rows
+
+
+def _resolve_application_talent_uids(
+    application_rows: list[tuple[str, dict]],
+) -> list[tuple[str, dict]]:
+    unresolved = [
+        (application_id, data)
+        for application_id, data in application_rows
+        if not _get_talent_user_id(data)
+    ]
+    emails = {
+        str(data.get("talent_email") or data.get("email") or "").strip()
+        for _, data in unresolved
+        if data.get("talent_email") or data.get("email")
+    }
+    users_by_email = {
+        str(data.get("email") or "").strip().lower(): get_talent_uid_from_data(data) or doc_id
+        for doc_id, data in _get_users_by_field("email", emails)
+    }
+    names = {
+        str(data.get("talent_name") or data.get("name") or "").strip()
+        for _, data in unresolved
+        if data.get("talent_name") or data.get("name")
+    }
+    users_by_name: dict[str, str] = {}
+    for field_name in ("name", "display_name"):
+        for doc_id, data in _get_users_by_field(field_name, names):
+            name = str(data.get(field_name) or "").strip().lower()
+            users_by_name.setdefault(name, get_talent_uid_from_data(data) or doc_id)
+
+    resolved_rows: list[tuple[str, dict]] = []
+    for application_id, data in application_rows:
+        talent_uid = _get_talent_user_id(data)
+        if not talent_uid:
+            email = str(data.get("talent_email") or data.get("email") or "").strip().lower()
+            name = str(data.get("talent_name") or data.get("name") or "").strip().lower()
+            talent_uid = users_by_email.get(email) or users_by_name.get(name) or ""
+        next_data = dict(data)
+        if talent_uid:
+            next_data.update(
+                {
+                    "talent_user_id": talent_uid,
+                    "talent_uid": talent_uid,
+                    "user_id": talent_uid,
+                    "user_uid": talent_uid,
+                }
+            )
+        resolved_rows.append((application_id, next_data))
+    return resolved_rows
 
 
 def _serialize_my_application(
@@ -507,7 +600,9 @@ def list_opportunity_applications(
     _get_opportunity_owned_by_user(opportunity_id, current_user)
 
     query = db.collection("applications").where("opportunity_id", "==", opportunity_id)
-    application_rows = [(doc.id, doc.to_dict() or {}) for doc in query.stream()]
+    application_rows = _resolve_application_talent_uids(
+        [(doc.id, doc.to_dict() or {}) for doc in query.stream()]
+    )
     talent_uids = {
         talent_uid
         for _, data in application_rows
@@ -533,6 +628,9 @@ def update_application_status(
         raise HTTPException(status_code=404, detail="Postulacion no encontrada")
 
     application_data = application_doc.to_dict() or {}
+    application_data = _resolve_application_talent_uids(
+        [(application_doc.id, application_data)]
+    )[0][1]
     current_status = _normalize_application_status(application_data.get("status"))
     if current_status in TERMINAL_APPLICATION_STATUSES:
         raise HTTPException(
@@ -568,12 +666,19 @@ def update_application_status(
             application_id=application_data.get("id") or application_doc.id,
             recruitment_id=None,
             source="APPLICATION",
-            role=opportunity_data.get("title") or opportunity_data.get("role_needed"),
-            category=opportunity_data.get("category") or opportunity_data.get("specialty"),
-            task_description=opportunity_data.get("description") or application_data.get("message"),
+            role=payload.role or opportunity_data.get("title") or opportunity_data.get("role_needed"),
+            category=payload.category or opportunity_data.get("category"),
+            specialty=opportunity_data.get("specialty"),
+            task_description=payload.task_description
+            or opportunity_data.get("description")
+            or application_data.get("message"),
             producer_note=None,
             opportunity_title=opportunity_data.get("title"),
             producer_name=current_user.name,
+            talent_name=application_data.get("talent_name"),
+            talent_email=application_data.get("talent_email"),
+            talent_photo_url=application_data.get("talent_photo_url")
+            or application_data.get("photo_url"),
         )
 
     return ApplicationStatusUpdateResponse(

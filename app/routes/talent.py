@@ -2,7 +2,7 @@ import time
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 
-from app.core.security import require_role
+from app.core.security import get_current_user, require_role
 from app.schemas.auth_schema import CurrentUser, UserRole
 from app.schemas.talent_schema import (
     AvailableTalentCrmResponse,
@@ -10,6 +10,7 @@ from app.schemas.talent_schema import (
     TalentAvailabilityResponse,
     TalentAvailabilityUpsertRequest,
     TalentProfileResponse,
+    TalentPublicProfileResponse,
     TalentProfilePhotoResponse,
     TalentProfilePortfolioPdfResponse,
     TalentProfileUpsertRequest,
@@ -18,6 +19,7 @@ from app.schemas.talent_schema import (
 from app.services.talent_service import (
     get_talent_availability,
     get_talent_profile,
+    get_talent_public_profile,
     list_available_talents,
     list_available_talents_crm,
     upsert_talent_availability,
@@ -47,6 +49,14 @@ async def get_my_profile(
     response = get_talent_profile(current_user)
     print(f"[PERF] GET /talent/profile/me route total: {(time.perf_counter() - start) * 1000:.2f} ms")
     return response
+
+
+@router.get("/{user_id}/profile-public", response_model=TalentPublicProfileResponse)
+async def get_public_profile(
+    user_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    return get_talent_public_profile(user_id)
 
 
 @router.put("/profile/me", response_model=TalentProfileResponse)

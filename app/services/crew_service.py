@@ -8,7 +8,13 @@ from google.cloud.firestore_v1 import Increment, Query
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 from app.core.firebase import db
-from app.core.utils import serialize_date, utc_now_iso
+from app.core.utils import (
+    get_crew_category_label,
+    get_talent_uid_from_data,
+    normalize_crew_category,
+    serialize_date,
+    utc_now_iso,
+)
 from app.schemas.auth_schema import CurrentUser
 from app.schemas.crew_schema import (
     CrewDirectMessageResponse,
@@ -48,6 +54,23 @@ def _first_present(data: dict, keys: tuple[str, ...], default: str | None = "") 
         if value:
             return str(value)
     return default
+
+
+def _normalize_text_list(value) -> list[str]:
+    if value is None:
+        return []
+    items = value if isinstance(value, list) else str(value).split(",")
+    return [str(item).strip() for item in items if str(item).strip()]
+
+
+def _crew_category_from_data(data: dict) -> str:
+    return normalize_crew_category(
+        data.get("category"),
+        data.get("role"),
+        data.get("specialty")
+        or data.get("main_specialty")
+        or data.get("task_category"),
+    )
 
 
 def get_user_identity(user_id: str, fallback: dict | None = None) -> CrewTalentSummary:
@@ -168,11 +191,15 @@ def create_or_update_crew_member(
     source: str,
     role: str | None = None,
     category: str | None = None,
+    specialty: str | None = None,
     task_description: str | None = None,
     producer_note: str | None = None,
     project_title: str | None = None,
     opportunity_title: str | None = None,
     producer_name: str | None = None,
+    talent_name: str | None = None,
+    talent_email: str | None = None,
+    talent_photo_url: str | None = None,
 ) -> dict:
     crew_member_id = _crew_member_id(producer_id, talent_user_id, project_id, opportunity_id)
     crew_member_ref = db.collection("crew_members").document(crew_member_id)
@@ -198,10 +225,7 @@ def create_or_update_crew_member(
         )
         for existing_project_doc in existing_project_docs:
             existing_project_data = existing_project_doc.to_dict() or {}
-            if (
-                existing_project_data.get("talent_user_id") == talent_user_id
-                or existing_project_data.get("talent_uid") == talent_user_id
-            ):
+            if get_talent_uid_from_data(existing_project_data) == talent_user_id:
                 crew_member_ref = existing_project_doc.reference
                 crew_member_id = existing_project_doc.id
                 break
@@ -215,6 +239,53 @@ def create_or_update_crew_member(
     resolved_project_title = existing_data.get("project_title") or project_title
     resolved_opportunity_title = existing_data.get("opportunity_title") or opportunity_title
     resolved_producer_name = existing_data.get("producer_name") or producer_name
+    identity_refs = [
+        db.collection("users").document(talent_user_id),
+        db.collection("talent_profiles").document(talent_user_id),
+    ]
+    identity_docs = {
+        doc.reference.parent.id: doc.to_dict() or {}
+        for doc in db.get_all(identity_refs)
+        if doc.exists
+    }
+    user_data = identity_docs.get("users", {})
+    profile_data = identity_docs.get("talent_profiles", {})
+    resolved_talent_name = _first_present(
+        profile_data,
+        ("display_name", "name"),
+        _first_present(
+            user_data,
+            ("name", "display_name"),
+            talent_name or _first_present(existing_data, ("talent_name", "name")),
+        ),
+    )
+    resolved_talent_email = _first_present(
+        user_data,
+        ("email",),
+        talent_email or _first_present(existing_data, ("talent_email", "email")),
+    )
+    resolved_talent_photo = _first_present(
+        profile_data,
+        ("photo_url", "picture"),
+        _first_present(
+            user_data,
+            ("photo_url", "picture", "avatar_url"),
+            talent_photo_url or _first_present(existing_data, ("talent_photo_url", "photo_url"), None),
+        ),
+    )
+    resolved_role = role if role is not None else existing_data.get("role")
+    resolved_specialty = (
+        specialty
+        or profile_data.get("main_specialty")
+        or existing_data.get("specialty")
+        or existing_data.get("main_specialty")
+        or existing_data.get("task_category")
+    )
+    resolved_category = normalize_crew_category(
+        category if category is not None else existing_data.get("category"),
+        resolved_role,
+        resolved_specialty,
+    )
 
     if project_id and not resolved_project_title:
         project_doc = db.collection("projects").document(project_id).get()
@@ -235,6 +306,18 @@ def create_or_update_crew_member(
         "producer_id": producer_id,
         "talent_user_id": talent_user_id,
         "talent_uid": talent_user_id,
+        "user_id": talent_user_id,
+        "user_uid": talent_user_id,
+        "talent_name": resolved_talent_name,
+        "name": resolved_talent_name,
+        "talent_email": resolved_talent_email,
+        "email": resolved_talent_email,
+        "talent_photo_url": resolved_talent_photo,
+        "photo_url": resolved_talent_photo,
+        "main_specialty": profile_data.get("main_specialty") or existing_data.get("main_specialty"),
+        "specialties": _normalize_text_list(
+            profile_data.get("specialties") or existing_data.get("specialties")
+        ),
         "project_id": project_id,
         "project_title": resolved_project_title,
         "opportunity_id": opportunity_id,
@@ -243,9 +326,12 @@ def create_or_update_crew_member(
         "application_id": application_id,
         "recruitment_id": recruitment_id,
         "source": source,
-        "role": existing_data.get("role") or role,
-        "category": existing_data.get("category") or category,
-        "task_description": existing_data.get("task_description") or task_description,
+        "role": resolved_role,
+        "category": resolved_category,
+        "category_label": get_crew_category_label(resolved_category),
+        "task_description": task_description
+        if task_description is not None
+        else existing_data.get("task_description"),
         "producer_note": existing_data.get("producer_note") or producer_note,
         "status": "ACTIVE",
         "joined_at": joined_at,
@@ -263,6 +349,7 @@ def create_or_update_crew_member(
 def _serialize_crew_member(crew_member_id: str, data: dict) -> CrewMemberResponse:
     project_id = data.get("project_id")
     opportunity_id = data.get("opportunity_id")
+    category = _crew_category_from_data(data)
     return CrewMemberResponse(
         id=data.get("id") or crew_member_id,
         project_id=project_id,
@@ -273,6 +360,8 @@ def _serialize_crew_member(crew_member_id: str, data: dict) -> CrewMemberRespons
         opportunity=get_opportunity_summary(opportunity_id) if opportunity_id else _legacy_opportunity_summary(data),
         source=data.get("source", ""),
         role=data.get("role"),
+        category=category,
+        category_label=get_crew_category_label(category),
         task_description=data.get("task_description"),
         producer_note=data.get("producer_note"),
         status=data.get("status", ""),
@@ -323,6 +412,22 @@ def _crew_last_activity(member_rows: list[tuple[str, dict]]) -> str | None:
     return max([value for value in values if value], default=None)
 
 
+def _crew_category_summary(
+    member_rows: list[tuple[str, dict]],
+) -> tuple[list[str], dict[str, int], list[str]]:
+    category_counts: dict[str, int] = {}
+    for _, data in member_rows:
+        category = _crew_category_from_data(data)
+        category_counts[category] = category_counts.get(category, 0) + 1
+
+    categories = list(category_counts)
+    top_categories = sorted(
+        categories,
+        key=lambda category: (-category_counts[category], categories.index(category)),
+    )
+    return categories, category_counts, top_categories
+
+
 def list_producer_crew_crm(
     current_user: CurrentUser,
     *,
@@ -331,7 +436,9 @@ def list_producer_crew_crm(
     start = time.perf_counter()
     query_start = time.perf_counter()
     docs = list(db.collection("crew_members").where("producer_id", "==", current_user.uid).stream())
-    member_rows = [(doc.id, doc.to_dict() or {}) for doc in docs]
+    member_rows = _resolve_crew_talent_uids(
+        [(doc.id, doc.to_dict() or {}) for doc in docs]
+    )
     print(
         "[PERF] crew CRM crew_members query "
         f"(reads={len(member_rows)}): {(time.perf_counter() - query_start) * 1000:.2f} ms"
@@ -350,10 +457,10 @@ def list_producer_crew_crm(
     identities_by_uid: dict[str, dict] = {}
     if not summary:
         fallbacks_by_uid = {
-            data.get("talent_user_id") or data.get("talent_uid", ""): data
+            get_talent_uid_from_data(data) or "": data
             for rows in grouped.values()
             for _, data in rows
-            if data.get("talent_user_id") or data.get("talent_uid")
+            if get_talent_uid_from_data(data)
         }
         identities_by_uid = _get_project_user_identities(fallbacks_by_uid)
 
@@ -378,17 +485,21 @@ def list_producer_crew_crm(
                         project_id,
                         crew_member_id,
                         data,
-                        identities_by_uid.get(data.get("talent_user_id") or data.get("talent_uid", "")),
+                        identities_by_uid.get(get_talent_uid_from_data(data) or ""),
                     )
                 )
                 for crew_member_id, data in rows
             ]
+        categories, category_counts, top_categories = _crew_category_summary(active_rows)
 
         items.append(
             CrewProjectCrmResponse(
                 project_id=project_id,
                 project_title=project_title or "",
                 members_count=len(active_rows),
+                categories=categories,
+                category_counts=category_counts,
+                top_categories=top_categories,
                 status=_crew_project_status(active_rows or rows),
                 last_activity=_crew_last_activity(rows),
                 members=members,
@@ -431,6 +542,105 @@ def _get_documents_by_id(collection_name: str, document_ids: set[str]) -> dict[s
         f"{(time.perf_counter() - start) * 1000:.2f} ms"
     )
     return documents
+
+
+def _chunks(items: list[str], size: int = 30) -> list[list[str]]:
+    return [items[index:index + size] for index in range(0, len(items), size)]
+
+
+def _get_documents_by_field_values(
+    collection_name: str,
+    field_name: str,
+    values: set[str],
+) -> list[tuple[str, dict]]:
+    normalized_values = sorted({str(value).strip() for value in values if str(value).strip()})
+    rows: list[tuple[str, dict]] = []
+    for values_chunk in _chunks(normalized_values):
+        query = db.collection(collection_name).where(
+            filter=FieldFilter(field_name, "in", values_chunk)
+        )
+        rows.extend((doc.id, doc.to_dict() or {}) for doc in query.stream())
+    return rows
+
+
+def _resolve_crew_talent_uids(
+    member_rows: list[tuple[str, dict]],
+) -> list[tuple[str, dict]]:
+    application_ids = {
+        data.get("application_id")
+        for _, data in member_rows
+        if not get_talent_uid_from_data(data) and data.get("application_id")
+    }
+    recruitment_ids = {
+        data.get("recruitment_id")
+        for _, data in member_rows
+        if not get_talent_uid_from_data(data) and data.get("recruitment_id")
+    }
+    applications_by_id = _get_documents_by_id("applications", application_ids)
+    recruitments_by_id = _get_documents_by_id("recruitments", recruitment_ids)
+
+    resolved_rows: list[tuple[str, dict]] = []
+    unresolved_rows: list[tuple[str, dict]] = []
+    for crew_member_id, data in member_rows:
+        talent_uid = get_talent_uid_from_data(data)
+        if not talent_uid and data.get("application_id"):
+            talent_uid = get_talent_uid_from_data(
+                applications_by_id.get(data.get("application_id"), {})
+            )
+        if not talent_uid and data.get("recruitment_id"):
+            talent_uid = get_talent_uid_from_data(
+                recruitments_by_id.get(data.get("recruitment_id"), {})
+            )
+        next_data = dict(data)
+        if talent_uid:
+            next_data.update(
+                {
+                    "talent_user_id": talent_uid,
+                    "talent_uid": talent_uid,
+                    "user_id": talent_uid,
+                    "user_uid": talent_uid,
+                }
+            )
+            resolved_rows.append((crew_member_id, next_data))
+        else:
+            unresolved_rows.append((crew_member_id, next_data))
+
+    unresolved_emails = {
+        str(data.get("email") or data.get("talent_email") or "").strip()
+        for _, data in unresolved_rows
+        if data.get("email") or data.get("talent_email")
+    }
+    users_by_email = {
+        str(data.get("email") or "").strip().lower(): get_talent_uid_from_data(data) or doc_id
+        for doc_id, data in _get_documents_by_field_values("users", "email", unresolved_emails)
+    }
+    unresolved_names = {
+        str(data.get("name") or data.get("talent_name") or "").strip()
+        for _, data in unresolved_rows
+        if data.get("name") or data.get("talent_name")
+    }
+    users_by_name: dict[str, str] = {}
+    for field_name in ("name", "display_name"):
+        for doc_id, data in _get_documents_by_field_values("users", field_name, unresolved_names):
+            name = str(data.get(field_name) or "").strip().lower()
+            users_by_name.setdefault(name, get_talent_uid_from_data(data) or doc_id)
+
+    for crew_member_id, data in unresolved_rows:
+        email = str(data.get("email") or data.get("talent_email") or "").strip().lower()
+        name = str(data.get("name") or data.get("talent_name") or "").strip().lower()
+        talent_uid = users_by_email.get(email) or users_by_name.get(name)
+        if talent_uid:
+            data.update(
+                {
+                    "talent_user_id": talent_uid,
+                    "talent_uid": talent_uid,
+                    "user_id": talent_uid,
+                    "user_uid": talent_uid,
+                }
+            )
+        resolved_rows.append((crew_member_id, data))
+
+    return resolved_rows
 
 
 def _extract_count(result) -> int | None:
@@ -508,6 +718,8 @@ def _serialize_talent_crew_feed_item(
         opportunity_title=data.get("opportunity_title") or opportunity_data.get("title", ""),
         producer_name=data.get("producer_name") or producer_data.get("name", ""),
         role=data.get("role"),
+        category=_crew_category_from_data(data),
+        category_label=get_crew_category_label(_crew_category_from_data(data)),
         task_description=data.get("task_description"),
         producer_note=data.get("producer_note"),
         status=data.get("status", "ACTIVE"),
@@ -596,6 +808,16 @@ def update_crew_member(
         for key, value in updates.items()
         if key in {"role", "category", "task_description", "status", "producer_note"}
     }
+    if "category" in allowed_updates or "role" in allowed_updates:
+        normalized_category = normalize_crew_category(
+            allowed_updates.get("category", crew_member_data.get("category")),
+            allowed_updates.get("role", crew_member_data.get("role")),
+            crew_member_data.get("specialty")
+            or crew_member_data.get("main_specialty")
+            or crew_member_data.get("task_category"),
+        )
+        allowed_updates["category"] = normalized_category
+        allowed_updates["category_label"] = get_crew_category_label(normalized_category)
     allowed_updates["updated_at"] = utc_now_iso()
 
     updated_data = {
@@ -622,6 +844,16 @@ def update_project_crew_member(
     }
     if not updates:
         raise HTTPException(status_code=400, detail="Debes enviar role, category, task_description o status")
+    if "category" in updates or "role" in updates:
+        normalized_category = normalize_crew_category(
+            updates.get("category", crew_member_data.get("category")),
+            updates.get("role", crew_member_data.get("role")),
+            crew_member_data.get("specialty")
+            or crew_member_data.get("main_specialty")
+            or crew_member_data.get("task_category"),
+        )
+        updates["category"] = normalized_category
+        updates["category_label"] = get_crew_category_label(normalized_category)
 
     updated_data = {
         **crew_member_data,
@@ -814,6 +1046,8 @@ def _denormalized_project_identity(user_uid: str, fallback: dict | None = None) 
         ),
         "email": _first_present(fallback_data, ("email", "talent_email")),
         "photo_url": _first_present(fallback_data, ("photo_url", "picture", "avatar_url"), None),
+        "main_specialty": _first_present(fallback_data, ("main_specialty", "specialty")),
+        "specialties": _normalize_text_list(fallback_data.get("specialties")),
     }
 
 
@@ -858,15 +1092,8 @@ def _get_project_user_identities(fallbacks_by_uid: dict[str, dict]) -> dict[str,
         for user_uid, fallback in fallbacks_by_uid.items()
         if user_uid
     }
-    users_to_fetch: set[str] = set()
-    profiles_to_fetch: set[str] = set()
-
-    for user_uid, fallback in fallbacks_by_uid.items():
-        identity = _denormalized_project_identity(user_uid, fallback)
-        if not identity["name"] or not identity["email"] or not identity["photo_url"]:
-            users_to_fetch.add(user_uid)
-        if not identity["name"] or not identity["photo_url"]:
-            profiles_to_fetch.add(user_uid)
+    users_to_fetch = set(fallbacks_by_uid)
+    profiles_to_fetch = set(fallbacks_by_uid)
 
     refs = [
         *[db.collection("users").document(user_uid) for user_uid in users_to_fetch],
@@ -888,15 +1115,49 @@ def _get_project_user_identities(fallbacks_by_uid: dict[str, dict]) -> dict[str,
         denormalized = _denormalized_project_identity(user_uid, fallback)
         user_data = users_by_uid.get(user_uid, {})
         profile_data = profiles_by_uid.get(user_uid, {})
+        profile_summary = {
+            "display_name": _first_present(profile_data, ("display_name", "name")),
+            "bio": _first_present(profile_data, ("bio",)),
+            "main_specialty": _first_present(profile_data, ("main_specialty", "specialty")),
+            "specialties": _normalize_text_list(profile_data.get("specialties")),
+            "skills": _normalize_text_list(profile_data.get("skills")),
+            "languages": _normalize_text_list(profile_data.get("languages")),
+            "experience_years": profile_data.get("experience_years"),
+            "photo_url": _first_present(profile_data, ("photo_url", "picture"), None),
+            "portfolio_links": profile_data.get("portfolio_links") or [],
+            "portfolio_pdf_url": profile_data.get("portfolio_pdf_url"),
+        }
         identities[user_uid] = {
             "user_uid": user_uid,
-            "name": denormalized["name"]
-            or _first_present(profile_data, ("display_name", "name", "full_name", "nombre"))
-            or _first_present(user_data, ("name", "display_name", "full_name", "nombre")),
-            "email": denormalized["email"] or _first_present(user_data, ("email",)),
-            "photo_url": denormalized["photo_url"]
-            or _first_present(profile_data, ("photo_url", "picture", "avatar_url"), None)
-            or _first_present(user_data, ("photo_url", "picture", "avatar_url"), None),
+            "name": _first_present(
+                profile_data,
+                ("display_name", "name", "full_name", "nombre"),
+                _first_present(
+                    user_data,
+                    ("name", "display_name", "full_name", "nombre"),
+                    denormalized["name"],
+                ),
+            ),
+            "email": _first_present(
+                user_data,
+                ("email",),
+                _first_present(profile_data, ("email",), denormalized["email"]),
+            ),
+            "photo_url": _first_present(
+                profile_data,
+                ("photo_url", "picture"),
+                _first_present(
+                    user_data,
+                    ("photo_url", "picture", "avatar_url"),
+                    denormalized["photo_url"],
+                ),
+            ),
+            "main_specialty": profile_summary["main_specialty"]
+            or denormalized["main_specialty"],
+            "specialties": profile_summary["specialties"]
+            or denormalized["specialties"],
+            "profile": profile_summary,
+            "talent_profile": profile_summary,
         }
 
     print(
@@ -934,8 +1195,12 @@ def _producer_project_participant(
         **resolved_identity,
         "id": f"{project_id}__producer__{owner_uid}",
         "project_id": project_id,
+        "user_id": owner_uid,
+        "talent_user_id": "",
+        "talent_uid": None,
         "role": "PRODUCER",
-        "category": "PRODUCER",
+        "category": "PRODUCTION",
+        "category_label": get_crew_category_label("PRODUCTION"),
         "task_description": None,
         "status": "ACTIVE",
         "joined_at": serialize_date(project_data.get("created_at")),
@@ -951,7 +1216,8 @@ def _talent_project_participant(
     identity: dict | None = None,
     hydrate_identity: bool = True,
 ) -> dict:
-    talent_uid = data.get("talent_user_id") or data.get("talent_uid", "")
+    talent_uid = get_talent_uid_from_data(data) or ""
+    category = _crew_category_from_data(data)
     resolved_identity = identity or (
         _get_project_user_identity(talent_uid, data)
         if hydrate_identity
@@ -961,9 +1227,12 @@ def _talent_project_participant(
         **resolved_identity,
         "id": data.get("id") or crew_member_id,
         "project_id": project_id,
+        "user_id": talent_uid,
+        "talent_user_id": talent_uid,
         "talent_uid": talent_uid,
         "role": data.get("role"),
-        "category": data.get("category"),
+        "category": category,
+        "category_label": get_crew_category_label(category),
         "task_description": data.get("task_description"),
         "status": data.get("status", ""),
         "joined_at": serialize_date(data.get("joined_at") or data.get("created_at")),
@@ -1049,7 +1318,7 @@ def _project_crew_member_response(
     crew_member_id: str,
     data: dict,
 ) -> ProjectCrewMemberResponse:
-    talent_uid = data.get("talent_user_id") or data.get("talent_uid", "")
+    talent_uid = get_talent_uid_from_data(data) or ""
     identity = _get_project_user_identities({talent_uid: data}).get(talent_uid)
     application_status = None
     if data.get("application_id"):
@@ -1083,13 +1352,14 @@ def list_project_members(project_id: str, current_user: CurrentUser) -> ProjectC
             hydrate_participant=False,
             filter_member_status_in_query=True,
         )
+    member_docs = _resolve_crew_talent_uids(member_docs)
     owner_uid = _project_owner_uid(project_data)
     fallbacks_by_uid = {
         **({owner_uid: project_data} if owner_uid else {}),
         **{
-            data.get("talent_user_id") or data.get("talent_uid", ""): data
+            get_talent_uid_from_data(data) or "": data
             for _, data in member_docs
-            if data.get("talent_user_id") or data.get("talent_uid")
+            if get_talent_uid_from_data(data)
         },
     }
     identities_by_uid = _get_project_user_identities(fallbacks_by_uid)
@@ -1113,7 +1383,7 @@ def list_project_members(project_id: str, current_user: CurrentUser) -> ProjectC
                         **data,
                         "application_status": applications_by_id.get(data.get("application_id"), {}).get("status"),
                     },
-                    identities_by_uid.get(data.get("talent_user_id") or data.get("talent_uid", "")),
+                    identities_by_uid.get(get_talent_uid_from_data(data) or ""),
                 )
             )
             for crew_member_id, data in member_docs

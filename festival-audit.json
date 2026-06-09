@@ -1,0 +1,3461 @@
+{
+  "excel": {
+    "file": "C:\\Users\\Maxi\\Downloads\\FECHAS FESTIVALES 2025-2026.xlsx",
+    "sheets": {
+      "Festivals 2025": {
+        "physical_rows": 1001,
+        "nonempty_rows": 364,
+        "valid_festival_rows": 359,
+        "ignored_nonempty_rows": 5
+      },
+      "Los Días Azules ": {
+        "physical_rows": 738,
+        "nonempty_rows": 101,
+        "valid_festival_rows": 98,
+        "ignored_nonempty_rows": 3
+      },
+      "Copia de Los Días Azules ": {
+        "physical_rows": 749,
+        "nonempty_rows": 48,
+        "valid_festival_rows": 46,
+        "ignored_nonempty_rows": 2
+      },
+      "AMILCAR Festivals 2025": {
+        "physical_rows": 1020,
+        "nonempty_rows": 304,
+        "valid_festival_rows": 301,
+        "ignored_nonempty_rows": 3
+      },
+      "subvencionados ICAA": {
+        "physical_rows": 983,
+        "nonempty_rows": 140,
+        "valid_festival_rows": 99,
+        "ignored_nonempty_rows": 41
+      },
+      "Listado festivales": {
+        "physical_rows": 745,
+        "nonempty_rows": 108,
+        "valid_festival_rows": 44,
+        "ignored_nonempty_rows": 64
+      }
+    },
+    "total_physical_rows": 5236,
+    "total_nonempty_rows": 1065,
+    "total_valid_rows": 947,
+    "ignored_nonempty_rows": 118,
+    "duplicates_exact_name": {
+      "groups": 329,
+      "rows_in_groups": 821,
+      "duplicate_rows": 492
+    },
+    "duplicates_normalized_name": {
+      "groups": 329,
+      "rows_in_groups": 834,
+      "duplicate_rows": 505
+    },
+    "duplicates_canonical_name": {
+      "groups": 329,
+      "rows_in_groups": 834,
+      "duplicate_rows": 505
+    },
+    "duplicates_identity_name_country": {
+      "groups": 320,
+      "rows_in_groups": 756,
+      "duplicate_rows": 436
+    },
+    "duplicates_semantic_name": {
+      "groups": 323,
+      "rows_in_groups": 865,
+      "duplicate_rows": 542
+    },
+    "unique_normalized_names": 442,
+    "unique_canonical_names": 442,
+    "unique_identity_name_country": 511,
+    "unique_semantic_names": 405,
+    "date_errors_current_importer": [
+      {
+        "sheet": "Festivals 2025",
+        "row": 120,
+        "name": "CORTOGENIA",
+        "country": "Spain",
+        "field": "event_date",
+        "value": "01 dic 2025 \n17 dic 2025"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 129,
+        "name": "DOCKANEMA",
+        "country": "Zimbabwe",
+        "field": "event_date",
+        "value": "septiembre"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 129,
+        "name": "DOCKANEMA",
+        "country": "Zimbabwe",
+        "field": "deadline",
+        "value": "julio"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 151,
+        "name": "Espoo Ciné International Film Festival",
+        "country": "Finland",
+        "field": "event_date",
+        "value": "??"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 209,
+        "name": "Gijon IFF",
+        "country": "Spain",
+        "field": "opening_date",
+        "value": "?"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 223,
+        "name": "Horcynus Festival",
+        "country": "Italy",
+        "field": "event_date",
+        "value": "??"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 312,
+        "name": "Singapore International Film Festival (SGIFF)",
+        "field": "event_date",
+        "value": "octubre"
+      },
+      {
+        "sheet": "Los Días Azules ",
+        "row": 32,
+        "name": "CORTOGENIA",
+        "country": "Spain",
+        "field": "event_date",
+        "value": "01 dic 2025 \n17 dic 2025"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 3,
+        "name": "Menorca Doc Fest",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 4,
+        "name": "Ibiza Cine Fest",
+        "country": "España",
+        "field": "event_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 4,
+        "name": "Ibiza Cine Fest",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 4,
+        "name": "Ibiza Cine Fest",
+        "country": "España",
+        "field": "deadline",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 5,
+        "name": "L'Alternativa",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 6,
+        "name": "Festival Internacional de Cine de Sax",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 7,
+        "name": "Festival de Cine Comprometido Guadalajara",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 8,
+        "name": "Festival Internacional de Cine Independiente y de Autor Canarias",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 9,
+        "name": "Mirades Fest",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 10,
+        "name": "Festival Jóvenes Realizadores Granada",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 10,
+        "name": "Festival Jóvenes Realizadores Granada",
+        "country": "España",
+        "field": "deadline",
+        "value": "31/06/26"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 11,
+        "name": "FESTIVAL NACIONAL DE CORTOMETRAJES PLASENCIA ENCORTO",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 12,
+        "name": "Festival de Cortometrajes K-Lidoscopi",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 13,
+        "name": "Festival de Cine de l'Alfàs del Pi",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 14,
+        "name": "16th International Short Film Festival of Cyprus",
+        "country": "Chipre",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 18,
+        "name": "Transcinema Festival Internacional de Cine",
+        "country": "Perú",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 21,
+        "name": "Festival Villa del Cine",
+        "country": "Colombia",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 22,
+        "name": "Mediterranean Film Festival",
+        "country": "Bosnia y Herzegovina",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 25,
+        "name": "Chicago International Film Festival",
+        "country": "USA",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 29,
+        "name": "Jeonju International Film Festival",
+        "country": "South Korea",
+        "field": "event_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 34,
+        "name": "Stockholm International Film Festival",
+        "country": "Sweden",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 39,
+        "name": "Boulder International Film Festival",
+        "country": "USA",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 39,
+        "name": "Boulder International Film Festival",
+        "country": "USA",
+        "field": "deadline",
+        "value": "-"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 52,
+        "name": "DOCKANEMA",
+        "country": "Zimbabwe",
+        "field": "event_date",
+        "value": "septiembre"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 52,
+        "name": "DOCKANEMA",
+        "country": "Zimbabwe",
+        "field": "deadline",
+        "value": "julio"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 264,
+        "name": "Espoo Ciné International Film Festival",
+        "country": "Finland",
+        "field": "event_date",
+        "value": "??"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 265,
+        "name": "Horcynus Festival",
+        "country": "Italy",
+        "field": "event_date",
+        "value": "??"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 266,
+        "name": "CORTOGENIA",
+        "country": "Spain",
+        "field": "event_date",
+        "value": "01 dic 2025 \n17 dic 2025"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 267,
+        "name": "Buffalo International Film Festival (BIFF).",
+        "field": "event_date",
+        "value": "October 9 – 16, 2025"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 268,
+        "name": "Singapore International Film Festival (SGIFF)",
+        "field": "event_date",
+        "value": "octubre"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 2,
+        "name": "Festival de Cine de l'Alfàs del Pi",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 4,
+        "name": "Festival de Cine Comprometido Guadalajara",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 6,
+        "name": "Festival Internacional de Cine de Sax",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 8,
+        "name": "FESTIVAL NACIONAL DE CORTOMETRAJES PLASENCIA ENCORTO",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 11,
+        "name": "Mirades Fest",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 14,
+        "name": "Verzió International Human Rights Documentary Film Festival",
+        "country": "Hungria",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 18,
+        "name": "Festival de Cortometrajes K-Lidoscopi",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 20,
+        "name": "L'Alternativa",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 21,
+        "name": "Festival Jóvenes Realizadores Granada",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 21,
+        "name": "Festival Jóvenes Realizadores Granada",
+        "country": "España",
+        "field": "deadline",
+        "value": "31/06/26"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 24,
+        "name": "Mediterranean Film Festival",
+        "country": "Bosnia y Herzegovina",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 25,
+        "name": "Festival Internacional de Cine Independiente y de Autor Canarias",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 31,
+        "name": "Ibiza Cine Fest",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 32,
+        "name": "Menorca Doc Fest",
+        "country": "España",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 33,
+        "name": "16th International Short Film Festival of Cyprus",
+        "country": "Chipre",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 38,
+        "name": "Jeonju International Film Festival",
+        "country": "South Korea",
+        "field": "event_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 46,
+        "name": "Boulder International Film Festival",
+        "country": "USA",
+        "field": "opening_date",
+        "value": "-"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 46,
+        "name": "Boulder International Film Festival",
+        "country": "USA",
+        "field": "deadline",
+        "value": "-"
+      }
+    ],
+    "exact_duplicate_examples": [
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 15,
+          "name": "Edinburgh International Film Festival",
+          "country": "Ireland"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 5,
+          "name": "Edinburgh International Film Festival",
+          "country": "Ireland"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 27,
+          "name": "Edinburgh International Film Festival",
+          "country": "Ireland"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 246,
+          "name": "Edinburgh International Film Festival",
+          "country": "Ireland"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 119,
+          "name": "Edinburgh International Film Festival",
+          "country": "Reino Unido"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 35,
+          "name": "Edinburgh International Film Festival",
+          "country": "Ireland"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 41,
+          "name": "Jeonju International Film Festival",
+          "country": "South Korea"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 7,
+          "name": "Jeonju International Film Festival",
+          "country": "South Korea"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 29,
+          "name": "Jeonju International Film Festival",
+          "country": "South Korea"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 194,
+          "name": "Jeonju International Film Festival",
+          "country": "South Korea"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 43,
+          "name": "Jeonju International Film Festival",
+          "country": "Corea del Sur"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 38,
+          "name": "Jeonju International Film Festival",
+          "country": "South Korea"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 49,
+          "name": "Miami International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 11,
+          "name": "Miami International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 30,
+          "name": "Miami International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 179,
+          "name": "Miami International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 64,
+          "name": "Miami International Film Festival",
+          "country": "EE.UU."
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 39,
+          "name": "Miami International Film Festival",
+          "country": "USA"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 57,
+          "name": "Seattle International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 15,
+          "name": "Seattle International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 33,
+          "name": "Seattle International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 207,
+          "name": "Seattle International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 54,
+          "name": "Seattle International Film Festival",
+          "country": "EE.UU."
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 41,
+          "name": "Seattle International Film Festival",
+          "country": "USA"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 71,
+          "name": "Transilvania International Film Festival",
+          "country": "Romania"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 18,
+          "name": "Transilvania International Film Festival",
+          "country": "Romania"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 36,
+          "name": "Transilvania International Film Festival",
+          "country": "Romania"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 69,
+          "name": "Transilvania International Film Festival",
+          "country": "Romania"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 127,
+          "name": "Transilvania International Film Festival",
+          "country": "Rumania"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 43,
+          "name": "Transilvania International Film Festival",
+          "country": "Romania"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 72,
+          "name": "Tribeca Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 19,
+          "name": "Tribeca Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 37,
+          "name": "Tribeca Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 217,
+          "name": "Tribeca Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 60,
+          "name": "Tribeca Film Festival",
+          "country": "EE.UU."
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 44,
+          "name": "Tribeca Film Festival",
+          "country": "USA"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 8,
+          "name": "Chicago International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 3,
+          "name": "Chicago International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 25,
+          "name": "Chicago International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 102,
+          "name": "Chicago International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 56,
+          "name": "Chicago International Film Festival",
+          "country": "EE.UU."
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 35,
+          "name": "IndieLisboa Film Festival",
+          "country": "Portugal"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 6,
+          "name": "IndieLisboa Film Festival",
+          "country": "Portugal"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 28,
+          "name": "IndieLisboa Film Festival",
+          "country": "Portugal"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 195,
+          "name": "IndieLisboa Film Festival",
+          "country": "Portugal"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 36,
+          "name": "IndieLisboa Film Festival",
+          "country": "Portugal"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 64,
+          "name": "SYDNEY FILM FESTIVAL",
+          "country": "Australia"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 17,
+          "name": "SYDNEY FILM FESTIVAL",
+          "country": "Australia"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 35,
+          "name": "SYDNEY FILM FESTIVAL",
+          "country": "Australia"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 226,
+          "name": "SYDNEY FILM FESTIVAL",
+          "country": "Australia"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 42,
+          "name": "SYDNEY FILM FESTIVAL",
+          "country": "Australia"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 104,
+          "name": "Boulder International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 25,
+          "name": "Boulder International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 39,
+          "name": "Boulder International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 163,
+          "name": "Boulder International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 46,
+          "name": "Boulder International Film Festival",
+          "country": "USA"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 106,
+          "name": "Brussels International Film Festival",
+          "country": "Belgium"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 26,
+          "name": "Brussels International Film Festival",
+          "country": "Belgium"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 40,
+          "name": "Brussels International Film Festival",
+          "country": "Belgium"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 75,
+          "name": "Brussels International Film Festival",
+          "country": "Belgium"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 47,
+          "name": "Brussels International Film Festival",
+          "country": "Belgium"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 109,
+          "name": "Camden International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 28,
+          "name": "Camden International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 41,
+          "name": "Camden International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 248,
+          "name": "Camden International Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 48,
+          "name": "Camden International Film Festival",
+          "country": "USA"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 110,
+          "name": "Cerdanya Film Festival",
+          "country": "Spain"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 29,
+          "name": "Cerdanya Film Festival",
+          "country": "Spain"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 42,
+          "name": "Cerdanya Film Festival",
+          "country": "Spain"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 243,
+          "name": "Cerdanya Film Festival",
+          "country": "Spain"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 37,
+          "name": "Cerdanya Film Festival",
+          "country": "Spain"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 115,
+          "name": "Cinetopia Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 30,
+          "name": "Cinetopia Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 43,
+          "name": "Cinetopia Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 208,
+          "name": "Cinetopia Film Festival",
+          "country": "USA"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 49,
+          "name": "Cinetopia Film Festival",
+          "country": "USA"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 182,
+          "name": "Festival Internacional de Cine de Sax",
+          "country": "Spain"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 46,
+          "name": "Festival Internacional de Cine de Sax",
+          "country": "Spain"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 6,
+          "name": "Festival Internacional de Cine de Sax",
+          "country": "España"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 233,
+          "name": "Festival Internacional de Cine de Sax",
+          "country": "Spain"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 6,
+          "name": "Festival Internacional de Cine de Sax",
+          "country": "España"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 241,
+          "name": "L'Alternativa",
+          "country": "Spain"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 59,
+          "name": "L'Alternativa",
+          "country": "Spain"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 5,
+          "name": "L'Alternativa",
+          "country": "España"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 162,
+          "name": "L'Alternativa",
+          "country": "Spain"
+        },
+        {
+          "sheet": "Listado festivales",
+          "row": 20,
+          "name": "L'Alternativa",
+          "country": "España"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 10,
+          "name": "CineHealth",
+          "country": "USA"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 4,
+          "name": "CineHealth",
+          "country": "USA"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 26,
+          "name": "CineHealth",
+          "country": "USA"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 30,
+          "name": "CineHealth",
+          "country": "USA"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 48,
+          "name": "Marseille Festival of Documentary Film –\nFIDMarseille",
+          "country": "France"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 1,
+          "name": "Marseille Festival of Documentary Film –\nFIDMarseille"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 231,
+          "name": "Marseille Festival of Documentary Film –\nFIDMarseille",
+          "country": "France"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 76,
+          "name": "Marseille Festival of Documentary Film –\nFIDMarseille",
+          "country": "Francia"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 53,
+          "name": "Raindance Film Festival",
+          "country": "UK"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 13,
+          "name": "Raindance Film Festival",
+          "country": "UK"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 227,
+          "name": "Raindance Film Festival",
+          "country": "UK"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 123,
+          "name": "Raindance Film Festival",
+          "country": "Reino Unido"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 55,
+          "name": "São Paulo Film Festival",
+          "country": "Brazil"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 14,
+          "name": "São Paulo Film Festival",
+          "country": "Brazil"
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 49,
+          "name": "São Paulo Film Festival",
+          "country": "Brazil"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 136,
+          "name": "São Paulo Film Festival",
+          "country": "Brazil"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 107,
+          "name": "Buffalo International Film Festival (BIFF)."
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 27,
+          "name": "Buffalo International Film Festival (BIFF)."
+        },
+        {
+          "sheet": "Copia de Los Días Azules ",
+          "row": 51,
+          "name": "Buffalo International Film Festival (BIFF).",
+          "country": "USA"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 267,
+          "name": "Buffalo International Film Festival (BIFF)."
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 231,
+          "name": "IFF Panama",
+          "country": "Panama"
+        },
+        {
+          "sheet": "Festivals 2025",
+          "row": 232,
+          "name": "IFF Panama",
+          "country": "Panama"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 177,
+          "name": "IFF Panama",
+          "country": "Panama"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 275,
+          "name": "IFF Panama",
+          "country": "Panama"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 2,
+          "name": "BAFICI - Buenos Aires Festival Internacional de Cine Independiente  (para 2026)",
+          "country": "Argentina"
+        },
+        {
+          "sheet": "Los Días Azules ",
+          "row": 2,
+          "name": "BAFICI - Buenos Aires Festival Internacional de Cine Independiente  (para 2026)",
+          "country": "Argentina"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 212,
+          "name": "BAFICI - Buenos Aires Festival Internacional de Cine Independiente  (para 2026)",
+          "country": "Argentina"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 3,
+          "name": "Beijing International Film Festival",
+          "country": "China"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 187,
+          "name": "Beijing International Film Festival",
+          "country": "China"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 37,
+          "name": "Beijing International Film Festival",
+          "country": "China"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 4,
+          "name": "Bogotá International Film Festival (BIFF)",
+          "country": "Colombia"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 115,
+          "name": "Bogotá International Film Festival (BIFF)",
+          "country": "Colombia"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 40,
+          "name": "Bogotá International Film Festival (BIFF)",
+          "country": "Colombia"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 5,
+          "name": "Busan International Film Festival",
+          "country": "South Korea"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 6,
+          "name": "Busan International Film Festival",
+          "country": "South Korea"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 41,
+          "name": "Busan International Film Festival",
+          "country": "Corea del Sur"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 6,
+          "name": "Cairo International Film Festival",
+          "country": "Egypt"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 104,
+          "name": "Cairo International Film Festival",
+          "country": "Egypt"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 49,
+          "name": "Cairo International Film Festival",
+          "country": "Egipto"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 9,
+          "name": "Chilemonos",
+          "country": "Chile"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 214,
+          "name": "Chilemonos",
+          "country": "Chile"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 33,
+          "name": "Chilemonos",
+          "country": "Chile"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 11,
+          "name": "Cinemaspagna",
+          "country": "Italy"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 199,
+          "name": "Cinemaspagna",
+          "country": "Italy"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 89,
+          "name": "Cinemaspagna",
+          "country": "Italia"
+        }
+      ],
+      [
+        {
+          "sheet": "Festivals 2025",
+          "row": 12,
+          "name": "Cinespaña Toulouse",
+          "country": "France"
+        },
+        {
+          "sheet": "AMILCAR Festivals 2025",
+          "row": 43,
+          "name": "Cinespaña Toulouse",
+          "country": "France"
+        },
+        {
+          "sheet": "subvencionados ICAA",
+          "row": 78,
+          "name": "Cinespaña Toulouse",
+          "country": "Francia"
+        }
+      ]
+    ]
+  },
+  "firestore": {
+    "total_documents_raw": 491,
+    "total_documents_valid": 485,
+    "invalid_documents": [
+      {
+        "id": "2cjHPlYhvItoNKjx3cXH",
+        "name": "https://actualidad.asturias.es/-/gij%C3%B3n-y-avil%C3%A9s-acogen-la-segunda-edici%C3%B3n-del-ciclo-de-cine-del-sespa-sobre-la-salud-mental-y-frente-al-estigma-asociado-a-la-discapacidad-psicosocial"
+      },
+      {
+        "id": "54u9EBSz3dyoU9Iumz00",
+        "name": "2025"
+      },
+      {
+        "id": "FURLwpmPfcNbYaU7VPhK",
+        "name": "Cyprus"
+      },
+      {
+        "id": "GmE5ns7qZ0XumDTMCiyj",
+        "name": "https://filmmakers.festhome.com/es/festival/menorca-doc-fest",
+        "country": "Spain",
+        "edition_year": "2026"
+      },
+      {
+        "id": "ZjJLuZDd6fjDHK6nAZoW",
+        "name": "https://consaludmental.org/eventos/cine-salud-mental-imaginate-aviles-gijon/"
+      },
+      {
+        "id": "hFdBSWF7VIl8C7hzrDkX",
+        "name": "ciclo de Cine y Salud Mental. No veo que tengan web ni nada, te paso lo que he visto:"
+      }
+    ],
+    "unique_normalized_names": 412,
+    "unique_identity_name_country": 382,
+    "duplicates_exact_name": {
+      "groups": 61,
+      "rows_in_groups": 122,
+      "duplicate_rows": 61
+    },
+    "duplicates_normalized_name": {
+      "groups": 73,
+      "rows_in_groups": 146,
+      "duplicate_rows": 73
+    },
+    "duplicates_identity_name_country": {
+      "groups": 4,
+      "rows_in_groups": 8,
+      "duplicate_rows": 4
+    },
+    "duplicates_semantic_name": {
+      "groups": 95,
+      "rows_in_groups": 198,
+      "duplicate_rows": 103
+    },
+    "unique_semantic_names": 382,
+    "status_raw": {
+      "CLOSED": 255,
+      "OPEN": 15,
+      "UNKNOWN": 214,
+      "UPCOMING": 1
+    },
+    "status_raw_all_documents": {
+      "CLOSED": 255,
+      "OPEN": 15,
+      "UNKNOWN": 220,
+      "UPCOMING": 1
+    },
+    "status_normalized": {
+      "CLOSED": 255,
+      "OPEN": 15,
+      "UNKNOWN": 214,
+      "UPCOMING": 1
+    },
+    "status_recalculated": {
+      "CLOSED": 255,
+      "OPEN": 15,
+      "UNKNOWN": 214,
+      "UPCOMING": 1
+    },
+    "incomplete_records": 255,
+    "incomplete_by_field": {
+      "country": 161,
+      "website": 211,
+      "opening_date": 229,
+      "deadline": 214,
+      "event_date": 182
+    },
+    "incomplete_examples": [
+      {
+        "id": "0DzmINJFB6Fzj4jqXu6i",
+        "name": "New York Film Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "0KCckun5qECUqeUAEJlm",
+        "name": "Buffalo International Film Festival (BIFF).",
+        "edition_year": "2025",
+        "missing": [
+          "country"
+        ]
+      },
+      {
+        "id": "0j25hqyTUYQCjuELViaK",
+        "name": "International Film Festival of India, Goa",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "1HWqr05J498x3aAqf3rj",
+        "name": "Los Angeles Lift-Off Film Festival",
+        "country": "USA",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "1YKetDtSRNwDKmkmy6P7",
+        "name": "Internationale Filmfestspiele Berlin. Berlinale",
+        "country": "Germany",
+        "edition_year": "2026",
+        "missing": [
+          "website",
+          "opening_date"
+        ]
+      },
+      {
+        "id": "1l0UnkzVfBJpTbdpcYEQ",
+        "name": "Glasgow Short Film Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "1l88nS2WhEYMcix0w4Go",
+        "name": "Festival International du Film de Rennes (Rennes - France)",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "26l4eMOLANx8Dn8NZKjC",
+        "name": "Sundance Film Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "29KheDxv5xQlFmg9qzk3",
+        "name": "Viennale - Vienna International Film Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "2bzSppCOITN0aKTcVwy2",
+        "name": "Beijing International Film Festival",
+        "country": "China",
+        "edition_year": "2026",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline"
+        ]
+      },
+      {
+        "id": "2iHe5FNBwfnA8aD4rv8m",
+        "name": "Olhar Film Festival",
+        "country": "Brazil",
+        "edition_year": "2026",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline"
+        ]
+      },
+      {
+        "id": "2kLuDkyIbURoDRcLhwjD",
+        "name": "Escales Documentaires - Festival International du Documentaire de Création (La Rochelle - France)",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "3mBVtdo6zUrzBfrjxEsz",
+        "name": "MONSTRA",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "3p2k2kU8S9ieF7ya72lu",
+        "name": "Raindance Film Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "3yaOMrnvsBzkvKmJbyp6",
+        "name": "Cinetopia Film Festival",
+        "country": "USA",
+        "edition_year": "2026",
+        "missing": [
+          "opening_date",
+          "deadline"
+        ]
+      },
+      {
+        "id": "44WqY07UGbsdOgwoDE3c",
+        "name": "Toronto Shorts International Film Festival",
+        "country": "Canada",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "4dWlK2Ba8Fy92fZUipx6",
+        "name": "Jakarta Independent Film Festival",
+        "edition_year": "2025",
+        "missing": [
+          "country"
+        ]
+      },
+      {
+        "id": "4g5cZtpQU3nSnYnhCws6",
+        "name": "Istanbul Film Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "4gef8DB0Z915jrTQMhsA",
+        "name": "Beldocs",
+        "edition_year": "2026",
+        "missing": [
+          "country"
+        ]
+      },
+      {
+        "id": "4hma8RTxUR1OhZk5zera",
+        "name": "Festival international du film d'animation d'Annecy",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "4xnOpOdq6BNh778TkV7i",
+        "name": "Festival de Cortos de Bogotá (Bogoshorts)",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "59mGhn3NUG90XXkwNNkn",
+        "name": "International Animation Film Festival -\nAnimafest Gdansk",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "5RVtBguxwXbtMxW0xFhQ",
+        "name": "Miradas Doc",
+        "country": "Spain",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "5sYEw6wLZzcO3SmJZuvs",
+        "name": "Festival Internacional de Cine de Guadalajara",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "6FFYCl9mdifLACgR1VMz",
+        "name": "LA International Film Festival",
+        "country": "USA",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "6TCeTI6Xx57nvWrIzn0Q",
+        "name": "International Documentary Film Festival Amsterdam (IDFA)",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "6ol7m1zv8IEJo0Ls5gic",
+        "name": "Unrestricted View Film festival",
+        "country": "UK",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "7DsfYyAATLM9dScSrrDe",
+        "name": "FIC-CAT, Catalan International Film Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "7XAedZGknmU9P8pxYeME",
+        "name": "FrontDoc",
+        "edition_year": "2025",
+        "missing": [
+          "country"
+        ]
+      },
+      {
+        "id": "7nVVCcg3OS9Of4acybKx",
+        "name": "SCAT- Scotland Catalan Film Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "7rwVhlXIyAhOeQpJqLX0",
+        "name": "Festival du Cinéma Espagnol de Nantes",
+        "country": "France",
+        "edition_year": "2026",
+        "missing": [
+          "opening_date",
+          "deadline"
+        ]
+      },
+      {
+        "id": "7z6Omy45S1RFhI2sfjtg",
+        "name": "Bogoshorts",
+        "edition_year": "2025",
+        "missing": [
+          "country"
+        ]
+      },
+      {
+        "id": "8Fg7T2HtP5WpQfPvdHih",
+        "name": "Sheffield International Documentary Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "8NcirIA1Y5RZI3P1NilF",
+        "name": "Visions du Réel, Festival International de Cinéma Nyon",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "8Oo9U86oKUVsr7Ny03UV",
+        "name": "Internationale Filmfestspiele Berlin. Berlinale",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "8ZGzlqPBcuCGNTVN0vZG",
+        "name": "Rogers Short Film Festival",
+        "country": "USA",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "9ZQuP96uLn4UqDzsNfT2",
+        "name": "DOK.fest München",
+        "country": "Alemania",
+        "edition_year": "2025",
+        "missing": [
+          "opening_date"
+        ]
+      },
+      {
+        "id": "9udnrn4hwsu5zWe5ZcYh",
+        "name": "Viña del Mar International Film Festival",
+        "country": "Chile",
+        "edition_year": "2025",
+        "missing": [
+          "opening_date",
+          "deadline"
+        ]
+      },
+      {
+        "id": "A5XGAsGZGY9Tzu1cmzDY",
+        "name": "Festival Internacional de Cine de la Cerdanya - Cinefília DOCU (Puigcerdà - Spain)",
+        "country": "Spain",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "AFB6LjjVmsikkUzhkqyR",
+        "name": "Festival Internacional de Cine de Mar de Plata",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "AGoVEqQcEZw7XTrT976d",
+        "name": "International Istanbul Film Festival",
+        "country": "Turkey",
+        "edition_year": "2025",
+        "missing": [
+          "website",
+          "event_date"
+        ]
+      },
+      {
+        "id": "ARLL5U4TgcKERGYEp913",
+        "name": "Documenta Madrid - Competición Nacional",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "AeGROliXXWTIFFLc047B",
+        "name": "Hawaii International Film Festival",
+        "country": "USA",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "AiF2VaCTIdeTnAcHMP62",
+        "name": "Intersección",
+        "edition_year": "2025",
+        "missing": [
+          "country",
+          "website"
+        ]
+      },
+      {
+        "id": "B90drMBTEzjyuQQ6vJE6",
+        "name": "Millennium Docs Against Gravity",
+        "country": "Belgium",
+        "edition_year": "2026",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline"
+        ]
+      },
+      {
+        "id": "BrJYA8yi3qaWaGnXIZ4v",
+        "name": "Melbourne International Film Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "C7CczZlP1Isd3cGTymCV",
+        "name": "MINDWISE - A Mental Health Project",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "CVWsW148FeR1QixBEfXP",
+        "name": "SXSW Film Festival Austin",
+        "country": "USA",
+        "missing": [
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "CXdCVOOeyeIS3ClLHLpK",
+        "name": "Festival REC",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      },
+      {
+        "id": "CdVVYdYJLkGOG98UtWEL",
+        "name": "Beijing International Film Festival",
+        "missing": [
+          "country",
+          "website",
+          "opening_date",
+          "deadline",
+          "event_date"
+        ]
+      }
+    ],
+    "duplicate_examples": [
+      [
+        {
+          "id": "4caCsKRafPil39VKRj6p",
+          "name": "Festival de Huelva de Cine Iberoamericano",
+          "country": "Spain",
+          "edition_year": "2026"
+        },
+        {
+          "id": "MumZXqoK7aRCqDvNjqyQ",
+          "name": "Festival de Huelva de Cine Iberoamericano",
+          "country": "Spain",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "8wCuftdPu6eD1mhyoVhC",
+          "name": "Festival Internacional de Cine ÍCARO",
+          "country": "Guatemala",
+          "edition_year": "2025"
+        },
+        {
+          "id": "olMTidPZTcaQuLN3al8V",
+          "name": "Festival Internacional de Cine ÍCARO",
+          "country": "Guatemala",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "9Arh4epOBJ90kPhUaE9z",
+          "name": "CineHealth",
+          "country": "USA",
+          "edition_year": "2026"
+        },
+        {
+          "id": "C32Caof3lyn2YJ0dSoIo",
+          "name": "CineHealth",
+          "country": "USA",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "eJ7BQqUyZw5cLr7tuwh2",
+          "name": "FICINDIE Festival Internacional de Cine Independiente y de Autor de Canarias",
+          "country": "Spain",
+          "edition_year": "2025"
+        },
+        {
+          "id": "uHUQRrFVs8Wdf0J2tBic",
+          "name": "FICINDIE Festival Internacional de Cine Independiente y de Autor de Canarias",
+          "country": "Spain",
+          "edition_year": "2026"
+        }
+      ]
+    ],
+    "semantic_duplicate_groups": [
+      [
+        {
+          "id": "NwaLpFfZPpsfpcXsR0kO",
+          "name": "Alcances / Festival de Cine Documental - Sección Oficial (Cádiz - Spain)"
+        },
+        {
+          "id": "PCuKtgXf6Cuz0oSD2v80",
+          "name": "Festival de Cine Documental Alcances",
+          "country": "España",
+          "edition_year": "2026"
+        },
+        {
+          "id": "jm1QBbHLBCBS7uCkbuCr",
+          "name": "Alcances",
+          "country": "Spain",
+          "edition_year": "2025"
+        },
+        {
+          "id": "nOuAG7ppJ5HgsK0MQ3r9",
+          "name": "Festival de Cine Documental Alcances",
+          "country": "Spain",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "JVMe5KWv6xqVygUyoVlg",
+          "name": "Festival Cinespaña - Documentary Official Competition (Toulouse - France)"
+        },
+        {
+          "id": "dCI5mVjm434MHh3K514M",
+          "name": "Cinespaña, Festival de Cinéma Espagnol & Portugais de Toulouse",
+          "country": "Francia",
+          "edition_year": "2025"
+        },
+        {
+          "id": "kdDsVb3fhsNCyCpMkLPD",
+          "name": "Cinespaña Toulouse"
+        },
+        {
+          "id": "mPw9WObD1GsQHrVlAsBC",
+          "name": "Cinespaña Toulouse",
+          "country": "France",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "F3Y92ZuZKsXyYCHdEiJj",
+          "name": "BAFICI - Buenos Aires Festival Internacional de Cine Independiente"
+        },
+        {
+          "id": "tRe3r33zfSgnjF07avYF",
+          "name": "BAFICI - Buenos Aires Festival Internacional de Cine Independiente  (para 2026)",
+          "country": "Argentina",
+          "edition_year": "2026"
+        },
+        {
+          "id": "uJkzXWfN19g8XnaSyh42",
+          "name": "BAFICI - Buenos Aires Festival Internacional de Cine Independiente",
+          "country": "Argentina",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "O8oIushmd9YTntXmADoX",
+          "name": "Locarno Film Festival",
+          "country": "Switzerland",
+          "edition_year": "2026"
+        },
+        {
+          "id": "TS2yyOcnGyt9GTufizch",
+          "name": "Festival del film Locarno"
+        },
+        {
+          "id": "xVlWDUekdrmefLLMZLSf",
+          "name": "Festival del film Locarno",
+          "country": "Switzerland",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "olga7eFBZc7EBfjR49pD",
+          "name": "IBIZACINEFEST-Ibiza Independent Film Festival",
+          "country": "Spain",
+          "edition_year": "2026"
+        },
+        {
+          "id": "yd3P8qfGk7DoioPjBxPV",
+          "name": "Ibiza Cine Fest (Ibiza - Spain)",
+          "country": "Spain",
+          "edition_year": "2027"
+        },
+        {
+          "id": "ys0Stn7GLbJZt8dqPpxu",
+          "name": "Ibiza Cine Fest (Ibiza - Spain)"
+        }
+      ],
+      [
+        {
+          "id": "3p2k2kU8S9ieF7ya72lu",
+          "name": "Raindance Film Festival"
+        },
+        {
+          "id": "agb8dfdZznLStIaM8pGg",
+          "name": "Raindance Film Festival",
+          "country": "UK",
+          "edition_year": "2026"
+        },
+        {
+          "id": "xSrLTDFfmpTIEoksR7Ct",
+          "name": "Radiance Film Festival",
+          "country": "UK",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "ids1khhPyFtCy1iN2wC5",
+          "name": "Another Way Film Festival (Spain)"
+        },
+        {
+          "id": "jowlT0iED64Cc9xjFEac",
+          "name": "Another Way Film Festival",
+          "country": "España",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "2bzSppCOITN0aKTcVwy2",
+          "name": "Beijing International Film Festival",
+          "country": "China",
+          "edition_year": "2026"
+        },
+        {
+          "id": "CdVVYdYJLkGOG98UtWEL",
+          "name": "Beijing International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "4gef8DB0Z915jrTQMhsA",
+          "name": "Beldocs",
+          "edition_year": "2026"
+        },
+        {
+          "id": "UnqHcCeLfMZXvkSBGSxu",
+          "name": "Beldocs (International Documentary Film Festival)",
+          "country": "Serbia",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "jdkDFbwtBEEtQakw5r2f",
+          "name": "Bogotá International Film Festival (BIFF)"
+        },
+        {
+          "id": "m9jzRWkvU0bTzNK1yWUk",
+          "name": "Bogotá International Film Festival (BIFF)",
+          "country": "Colombia",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "0KCckun5qECUqeUAEJlm",
+          "name": "Buffalo International Film Festival (BIFF).",
+          "edition_year": "2025"
+        },
+        {
+          "id": "d5xKxnr1diQY7lAiNnzp",
+          "name": "Buffalo International Film Festival (BIFF).",
+          "country": "USA",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "0xzXNhwMurqXRMiq4217",
+          "name": "Busan International Film Festival",
+          "country": "South Korea",
+          "edition_year": "2025"
+        },
+        {
+          "id": "J83KqI9mTcHtG86ZBxsJ",
+          "name": "Busan International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "bfvKuG7utXYUGxHJn9ro",
+          "name": "Cairo International Film Festival"
+        },
+        {
+          "id": "yE5sriCkNbpYCBy2Bk3p",
+          "name": "Cairo International Film Festival",
+          "country": "Egypt",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "T96st6qSCyJCBYRoWv3a",
+          "name": "CANNES INTERNATIONAL FILM FESTIVAL",
+          "country": "France",
+          "edition_year": "2026"
+        },
+        {
+          "id": "Wka30b6igxSJ9sJZJ6ci",
+          "name": "Festival de Cannes"
+        }
+      ],
+      [
+        {
+          "id": "DMuQUCUxicxQMgoIXxf9",
+          "name": "Chicago International Film Festival",
+          "country": "USA",
+          "edition_year": "2025"
+        },
+        {
+          "id": "LftxDtT0dZYwoJICtThI",
+          "name": "Chicago International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "IeVxHNqU02SvwW6i9UdB",
+          "name": "Chilemonos",
+          "country": "Chile",
+          "edition_year": "2026"
+        },
+        {
+          "id": "OCwUeBi5l4vdrWPMeR4a",
+          "name": "Chilemonos"
+        }
+      ],
+      [
+        {
+          "id": "9Arh4epOBJ90kPhUaE9z",
+          "name": "CineHealth",
+          "country": "USA",
+          "edition_year": "2026"
+        },
+        {
+          "id": "C32Caof3lyn2YJ0dSoIo",
+          "name": "CineHealth",
+          "country": "USA",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "TEGPMFnnXJ0E1Wvfzqmh",
+          "name": "Cinemaspagna"
+        },
+        {
+          "id": "psvVbf9vBT8cCERe0KfW",
+          "name": "Cinemaspagna",
+          "country": "Italy",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "06CeqMzhItvuLE5l4HD9",
+          "name": "Clermont Ferrand",
+          "country": "France",
+          "edition_year": "2026"
+        },
+        {
+          "id": "TPLF8zuUQkhCFvx2nFJX",
+          "name": "Festival International du Court Métrage à Clermont-Ferrand"
+        }
+      ],
+      [
+        {
+          "id": "1Vaw7zMNGY4ukxiu1Axz",
+          "name": "CPH:DOX",
+          "country": "Denmark",
+          "edition_year": "2026"
+        },
+        {
+          "id": "dH0aAPTEtltWXBGtrHfD",
+          "name": "CPH:DOX"
+        }
+      ],
+      [
+        {
+          "id": "ddCjK2FBKduKTWsqK9uK",
+          "name": "Doclisboa Film Festival"
+        },
+        {
+          "id": "q9mSykOSQL2mJqJPetwa",
+          "name": "Doclisboa - International Film Festival",
+          "country": "Portugal",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "Hll0pJTLYFIVOYo9UwiK",
+          "name": "DOK Leipzig"
+        },
+        {
+          "id": "Wz25Iu3JXD9FgGXXMRLV",
+          "name": "DOK Leipzig",
+          "country": "Germany",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "MfXGHkmYW6NwRO4Lb8GN",
+          "name": "Edinburgh International Film Festival",
+          "country": "Ireland",
+          "edition_year": "2026"
+        },
+        {
+          "id": "YZ970sySJr6QogcSwGzY",
+          "name": "Edinburgh International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "LeXGkLMNWNEIRMHDo2JT",
+          "name": "Festa del Cinema di Roma"
+        },
+        {
+          "id": "ff7FAwNTP5FXg1LxPKJJ",
+          "name": "Festa del Cinema di Roma",
+          "country": "Italy",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "mrgRGN7JF3cBz7bwDpgd",
+          "name": "Festival Cinematográfico Internacional del\nUruguay"
+        },
+        {
+          "id": "yjgn8MChcuX5HvPrj9V9",
+          "name": "Festival Cinematográfico Internacional del\nUruguay",
+          "country": "Uruguay",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "s1KOf1dRrATr6wJxSGT8",
+          "name": "Festival de cine de Morelia"
+        },
+        {
+          "id": "yB3BSqz9JBb0dvjsTeiF",
+          "name": "Festival de cine de Morelia",
+          "country": "Mexico",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "briIBWW1GqQ9BdgYaVEj",
+          "name": "Festival de Cine Global de Santo Domingo",
+          "country": "Dominican Republic",
+          "edition_year": "2026"
+        },
+        {
+          "id": "uXo82dmwuX9jBbIMYUPj",
+          "name": "Festival de Cine Global de Santo Domingo"
+        }
+      ],
+      [
+        {
+          "id": "DctDTc3f6wEBO6CQbGKC",
+          "name": "Festival de Cine Ibero-Latinoamericano de Trieste",
+          "country": "Italy",
+          "edition_year": "2025"
+        },
+        {
+          "id": "JI7WFMfTwZupyk34tbQN",
+          "name": "Festival de Cine Ibero-Latinoamericano de Trieste"
+        }
+      ],
+      [
+        {
+          "id": "4caCsKRafPil39VKRj6p",
+          "name": "Festival de Huelva de Cine Iberoamericano",
+          "country": "Spain",
+          "edition_year": "2026"
+        },
+        {
+          "id": "MumZXqoK7aRCqDvNjqyQ",
+          "name": "Festival de Huelva de Cine Iberoamericano",
+          "country": "Spain",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "6OLocdlNKk0DuAES8DiL",
+          "name": "Festival de Cine de Málaga",
+          "country": "España",
+          "edition_year": "2026"
+        },
+        {
+          "id": "rTamn6EKBuD8NFPzrOSD",
+          "name": "Festival de Málaga",
+          "country": "Spain",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "OqmmSHNg2P2JG0OfvWK6",
+          "name": "Festival do Rio"
+        },
+        {
+          "id": "RQCiN2JMHdZCRk3jImLZ",
+          "name": "Festival do Rio",
+          "country": "Brazil",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "7rwVhlXIyAhOeQpJqLX0",
+          "name": "Festival du Cinéma Espagnol de Nantes",
+          "country": "France",
+          "edition_year": "2026"
+        },
+        {
+          "id": "pldU3g9NVrjNAbkluGVv",
+          "name": "Festival du Cinéma Espagnol de Nantes"
+        }
+      ],
+      [
+        {
+          "id": "nUkxkgK32kG09bcKylrE",
+          "name": "Festival du Film Hispanique (Le Mans - France)"
+        },
+        {
+          "id": "odorJeZn5Q85Xfezj391",
+          "name": "Festival du Film Hispanique"
+        }
+      ],
+      [
+        {
+          "id": "PbpjNBP3yzBI92t1CU3z",
+          "name": "Festival Internacional de Cine de Cartagena de Indias"
+        },
+        {
+          "id": "k6i5O2ZKZiYCoBat2Hjk",
+          "name": "Festival Internacional de Cine de\nCartagena de Indias (FICCI)",
+          "country": "Colombia",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "5sYEw6wLZzcO3SmJZuvs",
+          "name": "Festival Internacional de Cine de Guadalajara"
+        },
+        {
+          "id": "qunhNm6Tc5NLbLzT8Ig1",
+          "name": "Festival Internacional de Cine de\nGuadalajara (FICG)",
+          "country": "Mexico",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "AFB6LjjVmsikkUzhkqyR",
+          "name": "Festival Internacional de Cine de Mar de Plata"
+        },
+        {
+          "id": "v4h288kCzA30xywoBSHX",
+          "name": "Festival Internacional de Cine de Mar del Plata",
+          "country": "Argentina",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "LdNEEfUts32Mrm96mNsA",
+          "name": "Festival Internacional de Cine de San Sebastián / Donostia Zinemaldia"
+        },
+        {
+          "id": "w39GimqV79fiKFIkrHn6",
+          "name": "Festival Internacional de Cine de San\nSebastián / Donostia Zinemaldia",
+          "country": "Spain",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "WvT8UYiM5zLaXgS8PSNo",
+          "name": "Festival Internacional de Cine de Valdivia",
+          "country": "Chile",
+          "edition_year": "2026"
+        },
+        {
+          "id": "XfUtlazNOw24nFhQXLph",
+          "name": "Festival de Cine de Valdivia",
+          "country": "Chile",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "IliOnaFXvHpY1oy7wx56",
+          "name": "Festival Internacional de Cine Guanajuato"
+        },
+        {
+          "id": "vCMKKWO20S4F5OM7BUoY",
+          "name": "Festival Internacional de Cine Guanajuato",
+          "country": "Mexico",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "8wCuftdPu6eD1mhyoVhC",
+          "name": "Festival Internacional de Cine ÍCARO",
+          "country": "Guatemala",
+          "edition_year": "2025"
+        },
+        {
+          "id": "olMTidPZTcaQuLN3al8V",
+          "name": "Festival Internacional de Cine ÍCARO",
+          "country": "Guatemala",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "O7jQwl92h9GAhRKsuXPl",
+          "name": "Festival Internacional del Nuevo Cine Latinoamericano (La Habana)",
+          "country": "Cuba",
+          "edition_year": "2025"
+        },
+        {
+          "id": "xltkWSWDoLTxveAGv34F",
+          "name": "Festival Internacional del Nuevo Cine\nLatinoamericano (La Habana)"
+        }
+      ],
+      [
+        {
+          "id": "eJ7BQqUyZw5cLr7tuwh2",
+          "name": "FICINDIE Festival Internacional de Cine Independiente y de Autor de Canarias",
+          "country": "Spain",
+          "edition_year": "2025"
+        },
+        {
+          "id": "uHUQRrFVs8Wdf0J2tBic",
+          "name": "FICINDIE Festival Internacional de Cine Independiente y de Autor de Canarias",
+          "country": "Spain",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "VhoT2JK6EiwQiFCyf61d",
+          "name": "FIPADOC International Documentary Festival"
+        },
+        {
+          "id": "lXvy6YNq7NeJWce9TfIF",
+          "name": "FIPADOC International Documentary Festival",
+          "country": "France",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "ceJTut5HdTjIevaiL8Ry",
+          "name": "GÖTEBORG FILM FESTIVAL",
+          "country": "Sweden",
+          "edition_year": "2026"
+        },
+        {
+          "id": "htOtENzAr8jSLSyiJ2cO",
+          "name": "Göteborg Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "HVKpV39r47rWUOZrp9Q5",
+          "name": "HONG KONG INTERNATIONAL FILM FESTIVAL",
+          "country": "Hong Kong",
+          "edition_year": "2025"
+        },
+        {
+          "id": "Ljp6yVC3vNou6j7rnx6T",
+          "name": "Hong Kong International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "KGY8Io0zjFAgZtsUcqDx",
+          "name": "Hot Docs Canadian International Documentary Festival"
+        },
+        {
+          "id": "bySdaslRVGWcr2PN4HNM",
+          "name": "HOT DOCS CANADIAN INTERNATIONAL DOCUMENTARY FESTIVAL (Canada)",
+          "country": "Canada",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "wMsMoq5WtU22dE4wT0VN",
+          "name": "Cannes Indie Short Awards",
+          "country": "Francia",
+          "edition_year": "2026"
+        },
+        {
+          "id": "x6zW03jrWPoco2tOznaY",
+          "name": "INDIE SHORTS AWARDS CANNES",
+          "country": "Francia",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "iR8RODhNn9pjzpgQ5AuD",
+          "name": "IndieLisboa"
+        },
+        {
+          "id": "sQ2FvGFYuHZiFzrVV1bl",
+          "name": "IndieLisboa Film Festival",
+          "country": "Portugal",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "6TCeTI6Xx57nvWrIzn0Q",
+          "name": "International Documentary Film Festival Amsterdam (IDFA)"
+        },
+        {
+          "id": "z4lfxbO3jMIOCDN7YLRA",
+          "name": "International Documentary Film Festival\nAmsterdam (IDFA)",
+          "country": "Netherlands",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "Gb81BVfJfCXF6hNDliT3",
+          "name": "Zinebi",
+          "country": "Spain",
+          "edition_year": "2025"
+        },
+        {
+          "id": "olPkU2ip4oe5XedKCTJz",
+          "name": "International Festival of Documentary and Short Film of Bilbao – ZINEBI",
+          "country": "España",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "0j25hqyTUYQCjuELViaK",
+          "name": "International Film Festival of India, Goa"
+        },
+        {
+          "id": "lHJuyzQaxQ7eDrtRo6q5",
+          "name": "International Film Festival of India, Goa",
+          "country": "India",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "eFLAS8FrMIIrqZHXS07t",
+          "name": "International Film Festival Rotterdam"
+        },
+        {
+          "id": "zB5hxHrWtMO66MMBbQDB",
+          "name": "International Film Festival Rotterdam",
+          "country": "Netherlands",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "4g5cZtpQU3nSnYnhCws6",
+          "name": "Istanbul Film Festival"
+        },
+        {
+          "id": "AGoVEqQcEZw7XTrT976d",
+          "name": "International Istanbul Film Festival",
+          "country": "Turkey",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "dmuuQ4bVI350mGGSoHQ0",
+          "name": "Internationale Kurzfilmtage Oberhausen",
+          "country": "Germany",
+          "edition_year": "2026"
+        },
+        {
+          "id": "q9t4QmuQeSguPTsUuzTB",
+          "name": "International Short Film Festival Oberhausen"
+        }
+      ],
+      [
+        {
+          "id": "1YKetDtSRNwDKmkmy6P7",
+          "name": "Internationale Filmfestspiele Berlin. Berlinale",
+          "country": "Germany",
+          "edition_year": "2026"
+        },
+        {
+          "id": "8Oo9U86oKUVsr7Ny03UV",
+          "name": "Internationale Filmfestspiele Berlin. Berlinale"
+        }
+      ],
+      [
+        {
+          "id": "Ws5kWMidUeJkDS5gMAK6",
+          "name": "Jeonju International Film Festival",
+          "country": "South Korea",
+          "edition_year": "2026"
+        },
+        {
+          "id": "qbULx40B5CyMjzLvetr3",
+          "name": "Jeonju International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "j3Grw6czzwHyg9iVHLiX",
+          "name": "JIO Mami Mumbai International Film Festival",
+          "country": "USA",
+          "edition_year": "2025"
+        },
+        {
+          "id": "jcAkwgpkRwrn9iWYvBFf",
+          "name": "JIO Mami Mumbai International Film\nFestival"
+        }
+      ],
+      [
+        {
+          "id": "fe4Lpuu3BipTVKcTfif3",
+          "name": "Karlovy Vary International Film Festival"
+        },
+        {
+          "id": "oVwqmkMrMg7sSkzvUjee",
+          "name": "Karlovy Vary International Film Festival",
+          "country": "Czech republic",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "FuvmKikHiPfxu1JTuOR7",
+          "name": "Krakow International Film Festival"
+        },
+        {
+          "id": "gFLErgbEKVJt3la2jjke",
+          "name": "Krakow International Film Festival",
+          "country": "Poland",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "XZMNr595HLg5ExUXOBNM",
+          "name": "La Biennale di Venezia / Mostra Internazionale d'Arte Cinematografica"
+        },
+        {
+          "id": "pNAiFPABmqmQ36f76s9h",
+          "name": "La Biennale di Venezia / Mostra\nInternazionale d'Arte Cinematografica",
+          "country": "Italy",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "gHvpTGpd0bj1f69VTWnS",
+          "name": "Les Arcs Film Festival",
+          "country": "France",
+          "edition_year": "2025"
+        },
+        {
+          "id": "uUz7hygsyO15Z23qFV7P",
+          "name": "Les Arcs Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "K59jyEHDBfglEizlnP7u",
+          "name": "London Short Film Festival (BFI)",
+          "country": "UK",
+          "edition_year": "2026"
+        },
+        {
+          "id": "beBzmd58UhZsJSo3h55h",
+          "name": "London Short Film Festival (BFI)",
+          "country": "Reino Unido",
+          "edition_year": "2027"
+        }
+      ],
+      [
+        {
+          "id": "OHzfRLTlfKbtqvm6FpNb",
+          "name": "Los Trabajos y las Noches - Festival de Cine y Procesos Artísticos (Logroño - Spain)"
+        },
+        {
+          "id": "x0i5QNprsfIHSiKAIbdx",
+          "name": "Los Trabajos y las Noches - Festival de Cine y Procesos Artísticos",
+          "country": "España"
+        }
+      ],
+      [
+        {
+          "id": "THhffqrzqqqdUgRk46Rm",
+          "name": "Marseille Festival of Documentary Film –\nFIDMarseille",
+          "country": "France",
+          "edition_year": "2026"
+        },
+        {
+          "id": "ZjvRHmIf0SIMvcTyUyRH",
+          "name": "Marseille Festival of Documentary Film –\nFIDMarseille"
+        }
+      ],
+      [
+        {
+          "id": "VcFfNK5El9YU7OMZ1CHa",
+          "name": "Miami International Film Festival",
+          "country": "USA",
+          "edition_year": "2026"
+        },
+        {
+          "id": "iYlqpLYppBusdss2Y9SU",
+          "name": "Miami International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "Lwe2IzN6mEho5Cfl1N8P",
+          "name": "Monte - Carlo Film Festival",
+          "country": "Monaco",
+          "edition_year": "2025"
+        },
+        {
+          "id": "wOGjlUZeVFsQheGGvZrO",
+          "name": "Monte - Carlo Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "FK7x6pfv3HfaAqNFoKBr",
+          "name": "São Paulo . Mostra Internacional de Cinema"
+        },
+        {
+          "id": "IXIROrBh9pWjm4nIXvA1",
+          "name": "Mostra Internacional de São Paulo",
+          "country": "Brasil",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "0DzmINJFB6Fzj4jqXu6i",
+          "name": "New York Film Festival"
+        },
+        {
+          "id": "TUphnSmfEnos4FFV8KLG",
+          "name": "New York Film Festival",
+          "country": "USA",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "XR9gXfw6iTkhx1kBMDSy",
+          "name": "Palm Springs International Film Festival"
+        },
+        {
+          "id": "xQAge0UV2uOS55fnnMFe",
+          "name": "Palm Springs International Film Festival",
+          "country": "USA",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "NtIAi23TXrkQTf5FNC8O",
+          "name": "Premios Pávez - Festival Internacional de Talavera de la Reina",
+          "country": "Spain"
+        },
+        {
+          "id": "rk7ufK8cJd65xYnOtz2C",
+          "name": "Premios Pavez"
+        }
+      ],
+      [
+        {
+          "id": "G4MqDzeE0wxee10XdUER",
+          "name": "RIDM – Montreal internacional\nDocumentary Festival"
+        },
+        {
+          "id": "Zy0kJZvhEgPErAK3r9Y6",
+          "name": "RIDM – Montreal internacional Documentary Festival",
+          "country": "Canada",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "MpFaq6V4G6SgsS0oUyC6",
+          "name": "Rizoma Film Festival (Madrid - Spain)"
+        },
+        {
+          "id": "cFemXIJSwvTyeyeqrF60",
+          "name": "Rizoma Film Festival (Madrid - Spain)",
+          "country": "España",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "IIabQUathXhoEIQtEVMi",
+          "name": "Sarajevo Film Festival"
+        },
+        {
+          "id": "yQn9wSiLxCNS4fiQgkpG",
+          "name": "Sarajevo Film Festival",
+          "country": "Bosnia and Herzegovina",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "8xO8Mm8ck4bf74r8R7bp",
+          "name": "Seattle International Film Festival",
+          "country": "USA",
+          "edition_year": "2026"
+        },
+        {
+          "id": "weD6KC6nAx1s5zmZMgAK",
+          "name": "Seattle International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "72VpjInNWSERcn6scwhz",
+          "name": "Semana Internacional de Cine de Valladolid (SEMINCI)",
+          "country": "Spain",
+          "edition_year": "2025"
+        },
+        {
+          "id": "MIkgUdjVwEKZWfKje2SF",
+          "name": "SEMINCI"
+        }
+      ],
+      [
+        {
+          "id": "AsxJffPgt3EKlxrH0h6o",
+          "name": "Shanghai International Film Festival",
+          "country": "China",
+          "edition_year": "2026"
+        },
+        {
+          "id": "OYhOifiFMtCuVKD0wiIz",
+          "name": "Shanghai International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "8Fg7T2HtP5WpQfPvdHih",
+          "name": "Sheffield International Documentary Festival"
+        },
+        {
+          "id": "ZsO57CYpphF9Nbzf60OP",
+          "name": "SHEFFIELD DOC/FEST",
+          "country": "UK",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "UdxYcFcDx8a0r0R9QeOo",
+          "name": "Sofia International Film Festival",
+          "country": "Bulgary",
+          "edition_year": "2026"
+        },
+        {
+          "id": "hPOsNiLfZYjCQjSDyANK",
+          "name": "Sofia International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "PFuzfkdiNe2NIZ5pTYf3",
+          "name": "Stockholm International Film Festival"
+        },
+        {
+          "id": "wyqLTX1cpIyTz5pDi5pA",
+          "name": "Stockholm International Film Festival",
+          "country": "Sweden",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "26l4eMOLANx8Dn8NZKjC",
+          "name": "Sundance Film Festival"
+        },
+        {
+          "id": "TbfMfwj9GLVuvulWhxMl",
+          "name": "Sundance Film Festival",
+          "country": "USA",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "CVWsW148FeR1QixBEfXP",
+          "name": "SXSW Film Festival Austin",
+          "country": "USA"
+        },
+        {
+          "id": "QWVslVetRQ4xriqmUzYt",
+          "name": "SXSW Film Festival Austin"
+        }
+      ],
+      [
+        {
+          "id": "huvD8mJp2eYEzgNj5Yzm",
+          "name": "SYDNEY FILM FESTIVAL",
+          "country": "Australia",
+          "edition_year": "2026"
+        },
+        {
+          "id": "uOiowHO2Mw5lrPPpRo9k",
+          "name": "Sydney Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "S68cE3pIztXBazXZoHLq",
+          "name": "Taipei Golden Horse Film Festival",
+          "country": "China",
+          "edition_year": "2025"
+        },
+        {
+          "id": "tvNmRh8OCG2aQASihEbK",
+          "name": "Taipei Golden Horse Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "VuckDZC9ncbbcLlRPbPV",
+          "name": "Tallinn Black Nights Film Festival"
+        },
+        {
+          "id": "ttmZlARhoFpAioIO5ria",
+          "name": "Tallinn Black Nights Film Festival",
+          "country": "Estonia",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "9PdD1YjKHxix5mPWk7jK",
+          "name": "Tampere Film Festival",
+          "country": "Finland",
+          "edition_year": "2026"
+        },
+        {
+          "id": "wa70XyRGeaCyUDDU1pnt",
+          "name": "Tampere Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "OovBjRu836tooqU1Dhsq",
+          "name": "Tokyo International Film Festival (TIFF)"
+        },
+        {
+          "id": "v1cW7Yh2XA4stk0DHia6",
+          "name": "Tokyo International Film Festival (TIFF)",
+          "country": "Japan",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "3ngLi0EnBbL9PzYdFsvV",
+          "name": "Torino Film Festival",
+          "country": "Italy",
+          "edition_year": "2025"
+        },
+        {
+          "id": "KczUT1ZBGaR4VVGOvsuk",
+          "name": "Torino Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "FFu1HFZQtyvBsZqkSZJ4",
+          "name": "Toronto International Film Festival (tiff.)",
+          "country": "Canada",
+          "edition_year": "2025"
+        },
+        {
+          "id": "geCXQuwXp5hG63bQEfxB",
+          "name": "Toronto International Film Festival (tiff.)"
+        }
+      ],
+      [
+        {
+          "id": "Qj4aG6csWJtRGCjFDNKQ",
+          "name": "Transilvania International Film Festival"
+        },
+        {
+          "id": "XRbK5e9d0KeJGPzbl99g",
+          "name": "Transilvania International Film Festival",
+          "country": "Romania",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "0mfk9CC4HIOwE2Doy1Wi",
+          "name": "Tribeca Film Festival",
+          "country": "USA",
+          "edition_year": "2026"
+        },
+        {
+          "id": "rtBL49IH5XEXvEUDypgH",
+          "name": "Tribeca Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "29KheDxv5xQlFmg9qzk3",
+          "name": "Viennale - Vienna International Film Festival"
+        },
+        {
+          "id": "jELWNYpFX8n1UpDCF1Up",
+          "name": "Viennale - Vienna International Film\nFestival",
+          "country": "Austria",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "8NcirIA1Y5RZI3P1NilF",
+          "name": "Visions du Réel, Festival International de Cinéma Nyon"
+        },
+        {
+          "id": "BW2R8ouhQwxppUBCflwm",
+          "name": "Visions du Réel, Festival International de\nCinéma Nyon",
+          "country": "Switzerland",
+          "edition_year": "2026"
+        }
+      ],
+      [
+        {
+          "id": "GurUNGDrr0hYZg5L0Nqv",
+          "name": "Warsaw International Film Festival",
+          "country": "Poland",
+          "edition_year": "2025"
+        },
+        {
+          "id": "KiXMpBnJqoNcPKRlKYc2",
+          "name": "Warsaw International Film Festival"
+        }
+      ],
+      [
+        {
+          "id": "FpEZ30ISdF9nGBtA4F4V",
+          "name": "Yamagata International Documentary Film\nFestival"
+        },
+        {
+          "id": "FxruDyM69qWLI1uAJXZt",
+          "name": "YAMAGATA INTERNATIONAL DOCUMENTARY FILM FESTIVAL",
+          "country": "Japan",
+          "edition_year": "2025"
+        }
+      ],
+      [
+        {
+          "id": "Ahc3ejPnYXAawMBwS9SQ",
+          "name": "Zurich Film Festival",
+          "country": "Switzerland",
+          "edition_year": "2025"
+        },
+        {
+          "id": "bSEs6Mb7B3sBr7FPqOtk",
+          "name": "Zurich Film Festival"
+        }
+      ]
+    ],
+    "missing_from_firestore": [
+      {
+        "sheet": "Festivals 2025",
+        "row": 120,
+        "name": "CORTOGENIA",
+        "country": "Spain"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 129,
+        "name": "DOCKANEMA",
+        "country": "Zimbabwe"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 151,
+        "name": "Espoo Ciné International Film Festival",
+        "country": "Finland"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 209,
+        "name": "Gijon IFF",
+        "country": "Spain"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 223,
+        "name": "Horcynus Festival",
+        "country": "Italy"
+      },
+      {
+        "sheet": "Festivals 2025",
+        "row": 312,
+        "name": "Singapore International Film Festival (SGIFF)"
+      },
+      {
+        "sheet": "Los Días Azules ",
+        "row": 32,
+        "name": "CORTOGENIA",
+        "country": "Spain"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 3,
+        "name": "Menorca Doc Fest",
+        "country": "España"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 11,
+        "name": "FESTIVAL NACIONAL DE CORTOMETRAJES PLASENCIA ENCORTO",
+        "country": "España"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 14,
+        "name": "16th International Short Film Festival of Cyprus",
+        "country": "Chipre"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 18,
+        "name": "Transcinema Festival Internacional de Cine",
+        "country": "Perú"
+      },
+      {
+        "sheet": "Copia de Los Días Azules ",
+        "row": 21,
+        "name": "Festival Villa del Cine",
+        "country": "Colombia"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 5,
+        "name": "Doc Luanda",
+        "country": "Angola"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 10,
+        "name": "TRIESTE FILM FESTIVAL",
+        "country": "Italy"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 52,
+        "name": "DOCKANEMA",
+        "country": "Zimbabwe"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 56,
+        "name": "Bergen International Film Festival.",
+        "country": "Norway"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 62,
+        "name": "CineGouna",
+        "country": "Egipto"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 83,
+        "name": "Africa International Film Festival - AFRIFF",
+        "country": "Nigeria"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 93,
+        "name": "Rome International Film Festival",
+        "country": "Italy"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 106,
+        "name": "Astra Film International Documentary Film Festiva"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 110,
+        "name": "Gijon IFF",
+        "country": "Spain"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 146,
+        "name": "Brussels Independet Film Festival",
+        "country": "Belgium"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 149,
+        "name": "Dublin International Film Festival",
+        "country": "Iralanda"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 191,
+        "name": "Washington DC International Film Festival",
+        "country": "USA"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 264,
+        "name": "Espoo Ciné International Film Festival",
+        "country": "Finland"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 265,
+        "name": "Horcynus Festival",
+        "country": "Italy"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 266,
+        "name": "CORTOGENIA",
+        "country": "Spain"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 268,
+        "name": "Singapore International Film Festival (SGIFF)"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 277,
+        "name": "Jornadas Cinematográficas de Cartago (JCC)",
+        "country": "Tunez"
+      },
+      {
+        "sheet": "AMILCAR Festivals 2025",
+        "row": 283,
+        "name": "Fespaco",
+        "country": "Burkina Faso"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 8,
+        "name": "FESTIVAL NACIONAL DE CORTOMETRAJES PLASENCIA ENCORTO",
+        "country": "España"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 32,
+        "name": "Menorca Doc Fest",
+        "country": "España"
+      },
+      {
+        "sheet": "Listado festivales",
+        "row": 33,
+        "name": "16th International Short Film Festival of Cyprus",
+        "country": "Chipre"
+      }
+    ],
+    "extra_in_firestore": [],
+    "missing_unique_count": 23,
+    "extra_unique_count": 0
+  }
+}

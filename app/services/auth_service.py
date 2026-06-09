@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from fastapi import HTTPException
 from firebase_admin import auth
 
 from app.core.firebase import db
@@ -48,6 +49,12 @@ def sync_google_user(data: GoogleUserRequest) -> dict:
         if existing_email_doc is not None:
             existing_user = existing_email_doc.to_dict()
             user_doc_ref = existing_email_doc.reference
+
+    if existing_user is None and data.role == UserRole.ADMIN:
+        raise HTTPException(
+            status_code=403,
+            detail="El rol ADMIN no esta disponible para registro publico",
+        )
 
     resolved_role = existing_user.get("role") if existing_user and existing_user.get("role") else data.role.value
 

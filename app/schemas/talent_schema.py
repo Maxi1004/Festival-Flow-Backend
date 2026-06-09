@@ -90,6 +90,31 @@ class TalentProfileResponse(BaseModel):
     updated_at: str | None = None
 
 
+class TalentPublicProfileResponse(BaseModel):
+    user_id: str
+    user_uid: str
+    name: str
+    email: str
+    photo_url: str | None = None
+    picture: str | None = None
+    display_name: str
+    bio: str = ""
+    main_specialty: str = ""
+    specialties: list[str] = Field(default_factory=list)
+    skills: list[str] = Field(default_factory=list)
+    languages: list[str] = Field(default_factory=list)
+    experience_years: int = 0
+    location: str = ""
+    work_modality: str = ""
+    availability_status: str = ""
+    available_from: str | None = None
+    availability_notes: str | None = None
+    portfolio_url: str | None = None
+    portfolio_links: list[PortfolioLink] = Field(default_factory=list)
+    portfolio_items: list[PortfolioItem] = Field(default_factory=list)
+    portfolio_pdf_url: str | None = None
+
+
 class TalentProfilePhotoResponse(BaseModel):
     photo_url: str
 

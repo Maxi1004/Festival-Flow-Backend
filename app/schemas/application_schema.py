@@ -65,29 +65,46 @@ class TalentApplicationFeedResponse(BaseModel):
 
 class ApplicationTalentSummary(BaseModel):
     user_id: str
+    user_uid: str
     name: str
     email: str
+    photo_url: str | None = None
 
 
 class ApplicationTalentProfile(BaseModel):
+    display_name: str = ""
+    bio: str = ""
+    main_specialty: str = ""
     specialties: list[str] = Field(default_factory=list)
     skills: list[str] = Field(default_factory=list)
+    languages: list[str] = Field(default_factory=list)
     experience_years: int | None = None
+    photo_url: str | None = None
     portfolio_url: str | None = None
+    portfolio_pdf_url: str | None = None
 
 
 class OpportunityApplicationResponse(BaseModel):
     id: str
     opportunity_id: str
+    user_id: str
+    talent_user_id: str
+    talent_name: str
+    talent_email: str
+    photo_url: str | None = None
     status: str
     message: str
     created_at: str | None = None
     talent: ApplicationTalentSummary
     profile: ApplicationTalentProfile
+    talent_profile: ApplicationTalentProfile
 
 
 class ApplicationStatusUpdateRequest(BaseModel):
     status: ProducerApplicationStatus
+    category: str | None = None
+    role: str | None = None
+    task_description: str | None = None
 
 
 class ApplicationStatusUpdateResponse(BaseModel):

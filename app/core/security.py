@@ -46,14 +46,15 @@ def get_current_user(decoded_token: dict = Depends(verify_firebase_token)) -> Cu
 
     user_data = user_doc.to_dict() or {}
     raw_role = user_data.get("role")
-
-    if not raw_role:
-        raise HTTPException(status_code=403, detail="El usuario autenticado no tiene un rol configurado")
-
-    try:
-        parsed_role = UserRole(raw_role)
-    except ValueError:
-        raise HTTPException(status_code=403, detail="El rol del usuario autenticado no es valido")
+    parsed_role = None
+    if raw_role:
+        try:
+            parsed_role = UserRole(str(raw_role).strip().upper())
+        except ValueError:
+            raise HTTPException(
+                status_code=403,
+                detail="El rol del usuario autenticado no es valido",
+            )
 
     response_start = time.perf_counter()
     current_user = CurrentUser(

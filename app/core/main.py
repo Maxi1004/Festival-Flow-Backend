@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.firebase import db
+from app.routes.admin_festivals import router as admin_festivals_router
 from app.routes.applications import router as applications_router
 from app.routes.auth import router as auth_router
 from app.routes.crew import router as crew_router
@@ -72,6 +73,7 @@ async def test_db():
 
 
 app.include_router(auth_router, prefix="/auth")
+app.include_router(admin_festivals_router)
 app.include_router(talent_router, prefix="/talent")
 app.include_router(producer_router, prefix="/producer")
 app.include_router(projects_router)

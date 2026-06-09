@@ -4,9 +4,10 @@ from typing import Any
 from unicodedata import normalize as unicode_normalize
 
 from google.cloud.firestore_v1.base_query import FieldFilter, Or
+from fastapi import HTTPException
 
 from app.core.firebase import db
-from app.core.utils import utc_now_iso
+from app.core.utils import get_talent_uid_from_data, utc_now_iso
 from app.schemas.auth_schema import CurrentUser
 from app.schemas.talent_schema import (
     AvailabilityStatus,
@@ -16,6 +17,7 @@ from app.schemas.talent_schema import (
     TalentAvailabilityResponse,
     TalentAvailabilityUpsertRequest,
     TalentProfileResponse,
+    TalentPublicProfileResponse,
     TalentProfileUpsertRequest,
     WorkModality,
     TalentCommitmentResponse,
@@ -154,6 +156,179 @@ def _get_first_portfolio_url(profile_data: dict) -> str | None:
         return first_link.get("url")
 
     return None
+
+
+def _first_present(*values: Any, default: str = "") -> str:
+    for value in values:
+        if value is not None and str(value).strip():
+            return str(value).strip()
+    return default
+
+
+def _first_query_match(collection_name: str, field_name: str, value: str):
+    docs = list(
+        db.collection(collection_name)
+        .where(filter=FieldFilter(field_name, "==", value))
+        .limit(1)
+        .stream()
+    )
+    return docs[0] if docs else None
+
+
+def _resolve_talent_documents(identifier: str) -> tuple[str, dict, dict]:
+    requested_id = identifier.strip()
+    print(f"[DEBUG] profile-public requested id={requested_id}")
+
+    direct_refs = [
+        db.collection("talent_profiles").document(requested_id),
+        db.collection("users").document(requested_id),
+        db.collection("talent_availability").document(requested_id),
+    ]
+    direct_docs = {
+        doc.reference.parent.id: doc
+        for doc in db.get_all(direct_refs)
+        if doc.exists
+    }
+    profile_doc = direct_docs.get("talent_profiles")
+    user_doc = direct_docs.get("users")
+    availability_doc = direct_docs.get("talent_availability")
+
+    if not profile_doc:
+        profile_doc = _first_query_match("talent_profiles", "user_uid", requested_id)
+    if not user_doc:
+        user_doc = _first_query_match("users", "uid", requested_id)
+    if not user_doc and "@" in requested_id:
+        user_doc = _first_query_match("users", "email", requested_id)
+    if not availability_doc:
+        availability_doc = (
+            _first_query_match("talent_availability", "user_id", requested_id)
+            or _first_query_match("talent_availability", "user_uid", requested_id)
+        )
+
+    if not profile_doc and not user_doc and not availability_doc:
+        legacy_refs = [
+            db.collection("crew_members").document(requested_id),
+            db.collection("applications").document(requested_id),
+            db.collection("recruitments").document(requested_id),
+        ]
+        legacy_data = next(
+            (
+                doc.to_dict() or {}
+                for doc in db.get_all(legacy_refs)
+                if doc.exists
+            ),
+            {},
+        )
+        resolved_legacy_uid = get_talent_uid_from_data(legacy_data)
+        if resolved_legacy_uid and resolved_legacy_uid != requested_id:
+            return _resolve_talent_documents(resolved_legacy_uid)
+
+        for collection_name in ("crew_members", "applications", "recruitments"):
+            for field_name in (
+                "user_id",
+                "user_uid",
+                "talent_user_id",
+                "talent_uid",
+                "talent_id",
+            ):
+                legacy_doc = _first_query_match(collection_name, field_name, requested_id)
+                if not legacy_doc:
+                    continue
+                resolved_legacy_uid = get_talent_uid_from_data(
+                    legacy_doc.to_dict() or {}
+                )
+                if resolved_legacy_uid and resolved_legacy_uid != requested_id:
+                    return _resolve_talent_documents(resolved_legacy_uid)
+
+    profile_data = profile_doc.to_dict() or {} if profile_doc else {}
+    user_data = user_doc.to_dict() or {} if user_doc else {}
+    availability_data = availability_doc.to_dict() or {} if availability_doc else {}
+    resolved_uid = (
+        get_talent_uid_from_data(profile_data)
+        or get_talent_uid_from_data(user_data)
+        or get_talent_uid_from_data(availability_data)
+        or (profile_doc.id if profile_doc else None)
+        or (user_doc.id if user_doc else None)
+        or (availability_doc.id if availability_doc else None)
+    )
+
+    if not resolved_uid:
+        raise HTTPException(status_code=404, detail="Perfil de talento no encontrado")
+
+    if not profile_doc or profile_doc.id != resolved_uid:
+        resolved_profile = db.collection("talent_profiles").document(resolved_uid).get()
+        if resolved_profile.exists:
+            profile_doc = resolved_profile
+            profile_data = resolved_profile.to_dict() or {}
+    if not user_doc or user_doc.id != resolved_uid:
+        resolved_user = db.collection("users").document(resolved_uid).get()
+        if resolved_user.exists:
+            user_doc = resolved_user
+            user_data = resolved_user.to_dict() or {}
+
+    print(f"[DEBUG] resolved talent uid={resolved_uid}")
+    return resolved_uid, user_data, profile_data
+
+
+def get_talent_public_profile(user_id: str) -> TalentPublicProfileResponse:
+    resolved_uid, user_data, profile_data = _resolve_talent_documents(user_id)
+    availability_doc = db.collection("talent_availability").document(resolved_uid).get()
+    availability_data = availability_doc.to_dict() or {} if availability_doc.exists else {}
+    print(
+        "[DEBUG] found user/profile/availability "
+        f"user={bool(user_data)} profile={bool(profile_data)} "
+        f"availability={bool(availability_data)}"
+    )
+
+    display_name = _first_present(
+        profile_data.get("display_name"),
+        user_data.get("name"),
+        user_data.get("display_name"),
+        user_data.get("email"),
+    )
+    email = _first_present(user_data.get("email"), profile_data.get("email"))
+    photo_url = _first_present(
+        profile_data.get("photo_url"),
+        profile_data.get("picture"),
+        user_data.get("photo_url"),
+        user_data.get("picture"),
+        user_data.get("avatar_url"),
+    ) or None
+
+    return TalentPublicProfileResponse(
+        user_id=resolved_uid,
+        user_uid=resolved_uid,
+        name=display_name,
+        email=email,
+        photo_url=photo_url,
+        picture=photo_url,
+        display_name=display_name,
+        bio=_first_present(profile_data.get("bio")),
+        main_specialty=_first_present(profile_data.get("main_specialty")),
+        specialties=_normalize_text_list(profile_data.get("specialties")),
+        skills=_normalize_text_list(profile_data.get("skills")),
+        languages=_normalize_text_list(profile_data.get("languages")),
+        experience_years=int(profile_data.get("experience_years") or 0),
+        location=_first_present(
+            availability_data.get("location"),
+            availability_data.get("work_location"),
+            profile_data.get("location"),
+        ),
+        work_modality=_first_present(
+            availability_data.get("work_modality"),
+            availability_data.get("modality"),
+        ),
+        availability_status=_first_present(
+            availability_data.get("status"),
+            availability_data.get("availability_status"),
+        ),
+        available_from=_serialize_available_from(availability_data.get("available_from")),
+        availability_notes=availability_data.get("notes"),
+        portfolio_url=_get_first_portfolio_url(profile_data),
+        portfolio_links=profile_data.get("portfolio_links") or [],
+        portfolio_items=profile_data.get("portfolio_items") or [],
+        portfolio_pdf_url=profile_data.get("portfolio_pdf_url"),
+    )
 
 
 def get_talent_profile(current_user: CurrentUser) -> TalentProfileResponse:

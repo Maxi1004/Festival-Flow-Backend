@@ -33,6 +33,8 @@ async def register(data: RegisterRequest):
 async def google_auth(data: GoogleUserRequest):
     try:
         return sync_google_user(data)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -40,8 +42,14 @@ async def google_auth(data: GoogleUserRequest):
 @router.get("/me", response_model=AuthMeResponse)
 async def get_me(current_user: CurrentUser = Depends(get_current_user)):
     start = time.perf_counter()
+    user_doc = db.collection("users").document(current_user.uid).get()
+    user_data = user_doc.to_dict() or {} if user_doc.exists else {}
+    raw_role = user_data.get("role")
+    role = UserRole(str(raw_role).strip().upper()) if raw_role else None
+    print("[AUTH_ME]", current_user.uid, user_data.get("email"), user_data.get("role"))
+
     photo_url = None
-    if current_user.role == UserRole.TALENT:
+    if role == UserRole.TALENT:
         profile_get_start = time.perf_counter()
         profile_doc = db.collection("talent_profiles").document(current_user.uid).get()
         print(
@@ -55,7 +63,7 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user)):
                 or profile_data.get("picture")
                 or profile_data.get("avatar_url")
             )
-    elif current_user.role == UserRole.PRODUCER:
+    elif role == UserRole.PRODUCER:
         profile_get_start = time.perf_counter()
         profile_doc = db.collection("producer_profiles").document(current_user.uid).get()
         print(
@@ -73,13 +81,13 @@ async def get_me(current_user: CurrentUser = Depends(get_current_user)):
         "message": "Token valido",
         "user": {
             "uid": current_user.uid,
-            "email": current_user.email,
-            "name": current_user.name,
-            "picture": current_user.picture,
+            "email": user_data.get("email") or current_user.email,
+            "name": user_data.get("name") or current_user.name,
+            "picture": user_data.get("picture") or current_user.picture,
             "photo_url": photo_url,
-            "role": current_user.role.value,
-            "provider": current_user.provider,
-            "created_at": current_user.created_at,
+            "role": role.value if role else None,
+            "provider": user_data.get("provider") or current_user.provider,
+            "created_at": user_data.get("created_at") or current_user.created_at,
         },
     }
     print(f"[PERF] GET /auth/me build response: {(time.perf_counter() - start) * 1000:.2f} ms")

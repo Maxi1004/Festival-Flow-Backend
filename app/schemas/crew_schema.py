@@ -35,6 +35,8 @@ class CrewMemberResponse(BaseModel):
     opportunity: CrewOpportunitySummary | None = None
     source: str
     role: str | None = None
+    category: str = "OTHER"
+    category_label: str = "Other"
     task_description: str | None = None
     producer_note: str | None = None
     status: str
@@ -67,13 +69,20 @@ class CrewMessageCreateRequest(BaseModel):
 class ProjectCrewMemberResponse(BaseModel):
     id: str
     project_id: str
+    user_id: str
     user_uid: str
+    talent_user_id: str
     talent_uid: str | None = None
     name: str
     email: str
     photo_url: str | None = None
+    main_specialty: str = ""
+    specialties: list[str] = Field(default_factory=list)
+    profile: dict | None = None
+    talent_profile: dict | None = None
     role: str | None = None
-    category: str | None = None
+    category: str = "OTHER"
+    category_label: str = "Other"
     task_description: str | None = None
     status: str
     joined_at: str | None = None
@@ -89,6 +98,9 @@ class CrewProjectCrmResponse(BaseModel):
     project_id: str
     project_title: str = ""
     members_count: int = 0
+    categories: list[str] = Field(default_factory=list)
+    category_counts: dict[str, int] = Field(default_factory=dict)
+    top_categories: list[str] = Field(default_factory=list)
     status: str = ""
     last_activity: str | None = None
     members: list[ProjectCrewMemberResponse] | None = None
@@ -160,6 +172,8 @@ class TalentCrewFeedItem(BaseModel):
     opportunity_title: str
     producer_name: str
     role: str | None = None
+    category: str = "OTHER"
+    category_label: str = "Other"
     task_description: str | None = None
     producer_note: str | None = None
     status: str

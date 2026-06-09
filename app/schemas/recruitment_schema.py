@@ -33,6 +33,9 @@ class RecruitmentCreateRequest(BaseModel):
 
 class RecruitmentStatusUpdateRequest(BaseModel):
     status: RecruitmentDecisionStatus
+    category: str | None = None
+    role: str | None = None
+    task_description: str | None = None
 
 
 class RecruitmentResponse(BaseModel):
