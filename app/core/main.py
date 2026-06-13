@@ -1,5 +1,10 @@
+import asyncio
 import os
+import sys
 import time
+
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,12 +17,15 @@ from app.routes.crew import router as crew_router
 from app.routes.dashboard import router as dashboard_router
 from app.routes.opportunities import router as opportunities_router
 from app.routes.producer import router as producer_router
+from app.routes.producer_festivals import router as producer_festivals_router
 from app.routes.projects import router as projects_router
 from app.routes.recruitments import router as recruitments_router
 from app.routes.talent import router as talent_router
 from app.routes.translation import router as translation_router
+from app.routes.festival_scraper import router as festival_scraper_router
 
 app = FastAPI(title="Festival Flow API")
+app.include_router(festival_scraper_router)
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
@@ -76,6 +84,7 @@ app.include_router(auth_router, prefix="/auth")
 app.include_router(admin_festivals_router)
 app.include_router(talent_router, prefix="/talent")
 app.include_router(producer_router, prefix="/producer")
+app.include_router(producer_festivals_router)
 app.include_router(projects_router)
 app.include_router(opportunities_router)
 app.include_router(applications_router)

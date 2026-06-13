@@ -33,6 +33,51 @@ class FestivalResponse(BaseModel):
     updated_at: str = ""
 
 
+class FestivalProducerResponse(BaseModel):
+    id: str
+    name: str = ""
+    country: str = ""
+    website: str = ""
+    submission_url: str = ""
+    platform: str = ""
+    opening_date: str = ""
+    deadline: str = ""
+    event_date: str = ""
+    fee: str = ""
+    status: FestivalStatus = FestivalStatus.UNKNOWN
+    edition_year: str = ""
+    notes: str = ""
+    source: str = "excel"
+    days_until_deadline: int | None = None
+    selected_by_me: bool = False
+
+
+class FestivalSelectionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    festival_id: str
+
+    @field_validator("festival_id")
+    @classmethod
+    def festival_id_must_be_valid(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("festival_id no debe estar vacio")
+        if "/" in normalized:
+            raise ValueError("festival_id no es valido")
+        return normalized
+
+
+class FestivalSelectionResponse(BaseModel):
+    id: str
+    producer_uid: str
+    festival_id: str
+    status: str = "SELECTED"
+    created_at: str = ""
+    updated_at: str = ""
+    festival: FestivalProducerResponse
+
+
 class FestivalUpdateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
