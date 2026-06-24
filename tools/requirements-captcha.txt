@@ -1,0 +1,7 @@
+# Dependencias para tools/selenium_captcha_solver.py
+# Instalar con: pip install -r tools/requirements-captcha.txt
+
+selenium>=4.18.0
+selenium-stealth>=1.0.6
+easyocr>=1.7.1
+webdriver-manager>=4.0.1

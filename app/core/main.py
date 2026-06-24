@@ -23,6 +23,8 @@ from app.routes.recruitments import router as recruitments_router
 from app.routes.talent import router as talent_router
 from app.routes.translation import router as translation_router
 from app.routes.festival_scraper import router as festival_scraper_router
+from app.routes.scraper import router as scraper_router
+from app.routes.festival_apply import router as festival_apply_router
 
 app = FastAPI(title="Festival Flow API")
 app.include_router(festival_scraper_router)
@@ -92,5 +94,7 @@ app.include_router(recruitments_router)
 app.include_router(crew_router)
 app.include_router(dashboard_router)
 app.include_router(translation_router)
+app.include_router(scraper_router)
+app.include_router(festival_apply_router)
 
 #7

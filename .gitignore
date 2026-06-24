@@ -34,7 +34,11 @@ Thumbs.db
 # ===== ENV (MUY IMPORTANTE) =====
 .env
 .env.*
+!.env.example
 
 # ===== Firebase (CRÍTICO) =====
 serviceAccountKey.json
 Firebase/serviceAccountKey.json
+
+# ===== Scraper sessions (browser state, no credentials) =====
+sessions/
