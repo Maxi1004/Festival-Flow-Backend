@@ -473,6 +473,29 @@ def _do_login_attempt(
     """
     initial_url = driver.current_url
 
+    # ── PASO 0: Manejar social-login (ej. FilmFreeway muestra "Continue with
+    #    Google / Apple / Email" antes de mostrar el formulario tradicional).
+    #    Si no hay campo de email visible, busca un botón "continue/sign in with email"
+    #    y haz click para revelar el formulario clásico.
+    if not _find_first_visible(driver, _LOGIN_EMAIL_SELECTORS):
+        _CONTINUE_EMAIL_TEXTS = [
+            "continue with email", "sign in with email", "log in with email",
+            "login with email", "use email", "email", "continue",
+        ]
+        try:
+            candidates = driver.find_elements(By.CSS_SELECTOR, "button, a, [role='button']")
+            for el in candidates:
+                try:
+                    text = (el.text or "").lower().strip()
+                    if any(kw in text for kw in _CONTINUE_EMAIL_TEXTS) and el.is_displayed():
+                        el.click()
+                        time.sleep(2)
+                        break
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
     # ── PASO 1: Llenar email ──────────────────────────────────────────────
     # !! Si el campo no se detecta, ajusta _LOGIN_EMAIL_SELECTORS arriba !!
     email_field = _find_first_visible(driver, _LOGIN_EMAIL_SELECTORS)

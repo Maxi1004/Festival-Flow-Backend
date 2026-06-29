@@ -2,12 +2,13 @@ from fastapi import APIRouter, Depends
 
 from app.core.security import require_role
 from app.schemas.auth_schema import CurrentUser, UserRole
-from app.schemas.project_schema import ProjectCreateRequest, ProjectResponse, ProjectUpdateRequest
+from app.schemas.project_schema import ProjectCreateRequest, ProjectResponse, ProjectStatusUpdateRequest, ProjectUpdateRequest
 from app.services.project_service import (
     create_project,
     get_my_project_by_id,
     list_my_projects,
     update_my_project,
+    update_project_status,
 )
 
 router = APIRouter(tags=["Projects"])
@@ -43,3 +44,12 @@ async def put_project(
     current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
 ):
     return update_my_project(project_id, payload, current_user)
+
+
+@router.patch("/projects/{project_id}/status", response_model=ProjectResponse)
+async def patch_project_status(
+    project_id: str,
+    payload: ProjectStatusUpdateRequest,
+    current_user: CurrentUser = Depends(require_role(UserRole.PRODUCER)),
+):
+    return update_project_status(project_id, payload, current_user)

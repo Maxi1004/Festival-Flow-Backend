@@ -25,11 +25,16 @@ from fastapi.responses import StreamingResponse
 
 from app.core.security import get_current_user
 from app.schemas.auth_schema import CurrentUser
+from app.core.firebase import db
 from app.schemas.festival_apply_schema import (
     AnalyzeFormsRequest,
     AnalyzeFormsResponse,
     ApplyBatchRequest,
     ApplyBatchResponse,
+    FillOpenFormRequest,
+    FillOpenFormResponse,
+    GenerateFormAnswersRequest,
+    GenerateFormAnswersResponse,
     SubmitFormsRequest,
     SubmitFormsResponse,
 )
@@ -37,10 +42,13 @@ from app.services.festival_apply_service import (
     analyze_batch_exists,
     analyze_festival_forms,
     batch_exists,
+    fill_open_form,
+    get_analyze_result,
     get_event_queue,
     submit_batch,
     submit_forms,
 )
+from app.services.form_mapper_service import _VALID_STATUSES, map_project_to_form
 
 router = APIRouter(prefix="/api/festivals", tags=["Festival Apply"])
 
@@ -159,8 +167,9 @@ async def analyze_festival_forms_endpoint(
     scan the authenticated page for an application-form link, navigate to it,
     and extract all form fields (name, id, type, placeholder, label, required).
 
-    Once all festivals are scraped, calls Claude claude-sonnet-4-6 to generate a
-    single unified form JSON grouped in 4 categories:
+    Once all festivals are scraped, calls Gemini to generate a single unified
+    form JSON grouped in 4 categories. If the AI provider is unavailable, the
+    service returns a local fallback unified form built from the scraped fields:
       pelicula / director / tecnico / archivos
 
     Each unified field includes a `source_fields` list that maps back to the
@@ -216,3 +225,120 @@ async def submit_festival_forms_endpoint(
         raise HTTPException(status_code=404, detail=str(exc))
 
     return SubmitFormsResponse(submit_batch_id=submit_batch_id, total=total)
+
+
+# ── POST /api/festivals/generate-form-answers ─────────────────────────────────
+
+@router.post("/generate-form-answers", response_model=GenerateFormAnswersResponse)
+async def generate_form_answers_endpoint(
+    payload: GenerateFormAnswersRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    """
+    Generate form answers for a project against a previously analyzed festival form.
+
+    Does NOT scrape or open Selenium — uses the unified form already stored in
+    memory from POST /analyze-forms (identified by analyze_batch_id).
+
+    The project must belong to the authenticated user and be in one of:
+    FINALIZADO, COMPLETADO, or PUBLICADO.
+
+    Returns form_values (keyed by unified field key, compatible with /submit-forms),
+    plus missing_fields and confidence scores for each mapped value.
+    """
+    # ── 1. Validate analyze_batch_id ──────────────────────────────────────────
+    if not analyze_batch_exists(payload.analyze_batch_id):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Análisis '{payload.analyze_batch_id}' no encontrado. "
+                   "Ejecuta /analyze-forms primero.",
+        )
+
+    # ── 2. Fetch project from Firestore (raw dict — all fields) ──────────────
+    project_doc = db.collection("projects").document(payload.project_id).get()
+    if not project_doc.exists:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado.")
+
+    project_data: dict = project_doc.to_dict() or {}
+
+    if project_data.get("owner_uid") != current_user.uid:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos sobre este proyecto.",
+        )
+
+    status_raw = str(project_data.get("status") or "").strip().lower()
+    if status_raw not in _VALID_STATUSES:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"El proyecto está en estado '{project_data.get('status')}'. "
+                "Solo se pueden postular proyectos en estado: "
+                "completed, published, finalizado, completado o publicado."
+            ),
+        )
+
+    print(
+        f"[Generate Answers] Proyecto seleccionado: {project_data.get('title')} ({payload.project_id})",
+        flush=True,
+    )
+
+    # ── 3. Retrieve unified form from stored analysis ─────────────────────────
+    analyze_data = get_analyze_result(payload.analyze_batch_id)
+    unified_form: dict = analyze_data.get("unified_form", {})
+
+    print("[Generate Answers] Formulario recuperado", flush=True)
+
+    # ── 4. Run mapping (local + Gemini) in thread — may call Gemini ──────────
+    mapping_result = await asyncio.to_thread(
+        map_project_to_form,
+        project_data,
+        unified_form,
+    )
+
+    # ── 5. Build response ─────────────────────────────────────────────────────
+    return GenerateFormAnswersResponse(
+        project={"id": payload.project_id, "title": project_data.get("title", "")},
+        form_values=mapping_result["form_values"],
+        missing_fields=mapping_result["missing_fields"],
+        mapped_fields=mapping_result["mapped_fields"],
+        missing_count=mapping_result["missing_count"],
+    )
+
+
+# ── POST /api/festivals/fill-open-form ───────────────────────────────────────
+
+@router.post("/fill-open-form", response_model=FillOpenFormResponse)
+async def fill_open_form_endpoint(
+    payload: FillOpenFormRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    """
+    Fill the open FilmFreeway form(s) in the Selenium browser(s) kept from
+    POST /analyze-forms, using the field values provided.
+
+    Does NOT submit the form and does NOT close any browser window — the user
+    can review the filled form manually before deciding to submit.
+
+    form_values keys may be any of: field id, name, selector, label, or key
+    as returned by /analyze-forms or /generate-form-answers.
+    """
+    if not analyze_batch_exists(payload.analyze_batch_id):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Análisis '{payload.analyze_batch_id}' no encontrado. "
+                   "Ejecuta /analyze-forms primero.",
+        )
+
+    try:
+        result = await asyncio.to_thread(
+            fill_open_form,
+            payload.analyze_batch_id,
+            payload.form_values,
+        )
+    except ValueError as exc:
+        detail = str(exc)
+        status_code = 404 if "no encontrado" in detail.lower() else 400
+        raise HTTPException(status_code=status_code, detail=detail)
+
+    return FillOpenFormResponse(**result)

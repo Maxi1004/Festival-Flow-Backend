@@ -37,6 +37,7 @@ class AnalyzeFormsResponse(BaseModel):
     analyze_batch_id: str
     unified_form: dict[str, Any]
     fields_by_festival: dict[str, Any]
+    structured_form: dict[str, Any] = Field(default_factory=dict)
 
 
 # ── submit-forms ──────────────────────────────────────────────────────────────
@@ -49,3 +50,43 @@ class SubmitFormsRequest(BaseModel):
 class SubmitFormsResponse(BaseModel):
     submit_batch_id: str
     total: int
+
+
+# ── generate-form-answers ─────────────────────────────────────────────────────
+
+class GenerateFormAnswersRequest(BaseModel):
+    analyze_batch_id: str
+    project_id: str
+
+
+class FormFieldValue(BaseModel):
+    value: Any
+    confidence: float  # 0.0–1.0
+    source: str        # "project" | "ai" | "default" | "manual"
+
+
+class MissingField(BaseModel):
+    field: str
+    reason: str
+
+
+class GenerateFormAnswersResponse(BaseModel):
+    project: dict[str, Any]
+    form_values: dict[str, FormFieldValue]
+    missing_fields: list[MissingField]
+    mapped_fields: int
+    missing_count: int
+
+
+# ── fill-open-form ────────────────────────────────────────────────────────────
+
+class FillOpenFormRequest(BaseModel):
+    analyze_batch_id: str
+    form_values: dict[str, Any]
+
+
+class FillOpenFormResponse(BaseModel):
+    status: str
+    filled_count: int
+    skipped_count: int
+    errors: list[dict]

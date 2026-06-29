@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from app.core.firebase import db
 from app.core.utils import serialize_date, utc_now_iso
 from app.schemas.auth_schema import CurrentUser
-from app.schemas.project_schema import ProjectCreateRequest, ProjectResponse, ProjectUpdateRequest
+from app.schemas.project_schema import ProjectCreateRequest, ProjectResponse, ProjectStatusUpdateRequest, ProjectUpdateRequest
 
 
 def _serialize_project(project_id: str, data: dict) -> ProjectResponse:
@@ -66,6 +66,30 @@ def list_my_projects(current_user: CurrentUser) -> list[ProjectResponse]:
 def get_my_project_by_id(project_id: str, current_user: CurrentUser) -> ProjectResponse:
     project_doc = _get_project_owned_by_user(project_id, current_user)
     return _serialize_project(project_doc.id, project_doc.to_dict() or {})
+
+
+def update_project_status(
+    project_id: str,
+    payload: ProjectStatusUpdateRequest,
+    current_user: CurrentUser,
+) -> ProjectResponse:
+    project_doc = _get_project_owned_by_user(project_id, current_user)
+    existing_data = project_doc.to_dict() or {}
+    old_status = existing_data.get("status", "")
+    new_status = payload.status
+
+    project_doc.reference.update({
+        "status": new_status,
+        "updated_at": utc_now_iso(),
+    })
+
+    print(f"[Projects] Estado actualizado", flush=True)
+    print(f"[Projects] Proyecto: {project_id}", flush=True)
+    print(f"[Projects] Anterior: {old_status}", flush=True)
+    print(f"[Projects] Nuevo: {new_status}", flush=True)
+
+    updated = project_doc.reference.get().to_dict() or {}
+    return _serialize_project(project_id, updated)
 
 
 def update_my_project(
