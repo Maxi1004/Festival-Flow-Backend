@@ -1,4 +1,5 @@
 from collections.abc import Callable
+import os
 import time
 
 from fastapi import Depends, Header, HTTPException
@@ -6,6 +7,53 @@ from firebase_admin import auth
 
 from app.core.firebase import db
 from app.schemas.auth_schema import CurrentUser, UserRole
+
+_AUTH_CACHE_TTL_SECONDS = 300
+_auth_user_cache: dict[str, tuple[float, CurrentUser]] = {}
+
+
+def _dev_auth_fallback_enabled() -> bool:
+    return os.getenv("DEV_AUTH_FALLBACK", "").strip().lower() == "true"
+
+
+def _is_quota_exceeded_error(exc: Exception) -> bool:
+    text = f"{type(exc).__name__}: {exc}".lower()
+    return (
+        "resourceexhausted" in text
+        or "resource exhausted" in text
+        or "quota exceeded" in text
+        or "429" in text
+    )
+
+
+def _cache_get(uid: str) -> "tuple[CurrentUser | None, bool]":
+    cached = _auth_user_cache.get(uid)
+    if not cached:
+        print("[Auth Cache] MISS")
+        return None, False
+
+    cached_at, current_user = cached
+    is_fresh = (time.time() - cached_at) < _AUTH_CACHE_TTL_SECONDS
+    if is_fresh:
+        print("[Auth Cache] HIT")
+    return current_user, is_fresh
+
+
+def _cache_set(uid: str, current_user: CurrentUser) -> None:
+    _auth_user_cache[uid] = (time.time(), current_user)
+
+
+def _current_user_from_token(decoded_token: dict) -> CurrentUser:
+    return CurrentUser(
+        uid=decoded_token.get("uid") or "",
+        email=decoded_token.get("email") or "",
+        name="Dev User",
+        role=UserRole.PRODUCER,
+        provider=decoded_token.get("firebase", {}).get("sign_in_provider"),
+        picture=decoded_token.get("picture"),
+        photo_url=decoded_token.get("picture"),
+        created_at=None,
+    )
 
 
 def verify_firebase_token(authorization: str = Header(None)):
@@ -34,12 +82,29 @@ def get_current_user(decoded_token: dict = Depends(verify_firebase_token)) -> Cu
     if not uid:
         raise HTTPException(status_code=401, detail="Token invalido")
 
+    cached_user, cache_is_fresh = _cache_get(uid)
+    if cached_user and cache_is_fresh:
+        return cached_user
+
     firestore_start = time.perf_counter()
-    user_doc = db.collection("users").document(uid).get()
-    print(
-        "[PERF] get_current_user Firestore users/{uid}.get "
-        f"(reads=1): {(time.perf_counter() - firestore_start) * 1000:.2f} ms"
-    )
+    try:
+        user_doc = db.collection("users").document(uid).get()
+        print(
+            "[PERF] get_current_user Firestore users/{uid}.get "
+            f"(reads=1): {(time.perf_counter() - firestore_start) * 1000:.2f} ms"
+        )
+    except Exception as exc:
+        if _is_quota_exceeded_error(exc):
+            print("[Auth Cache] QUOTA_EXCEEDED")
+            if cached_user:
+                print("[Auth Cache] STALE_USED")
+                return cached_user
+            if _dev_auth_fallback_enabled():
+                print("[Auth Dev Fallback] Firestore quota exceeded, using token user")
+                current_user = _current_user_from_token(decoded_token)
+                _cache_set(uid, current_user)
+                return current_user
+        raise
 
     if not user_doc.exists:
         raise HTTPException(status_code=404, detail="Usuario autenticado no encontrado")
@@ -69,6 +134,7 @@ def get_current_user(decoded_token: dict = Depends(verify_firebase_token)) -> Cu
     )
     print(f"[PERF] get_current_user build CurrentUser: {(time.perf_counter() - response_start) * 1000:.2f} ms")
     print(f"[PERF] get_current_user total: {(time.perf_counter() - start) * 1000:.2f} ms")
+    _cache_set(uid, current_user)
     return current_user
 
 

@@ -1438,6 +1438,20 @@ def get_analyze_result(analyze_batch_id: str) -> dict | None:
         return _analyze_results.get(analyze_batch_id)
 
 
+def register_external_unified_form(analyze_batch_id: str, unified_form: dict[str, Any]) -> None:
+    """
+    Register a unified form produced by another flow (e.g. the Camoufox
+    FilmFreeway analyzer) under this module's batch store, keyed by the same
+    analyze_batch_id it was generated with.
+
+    This lets /api/festivals/generate-form-answers map project data onto forms
+    analyzed outside of analyze_festival_forms(), without duplicating its
+    local/Gemini mapping logic.
+    """
+    with _analyze_lock:
+        _analyze_results[analyze_batch_id] = {"unified_form": unified_form}
+
+
 # ── fill-open-form helpers ────────────────────────────────────────────────────
 
 def _locate_element(driver: Any, By: Any, field: dict) -> Any:

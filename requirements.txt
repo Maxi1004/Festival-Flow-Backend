@@ -25,7 +25,7 @@ google-cloud-storage==3.10.1
 google-crc32c==1.8.0
 google-genai==2.9.0
 google-resumable-media==2.8.2
-greenlet==3.5.1
+greenlet==3.1.1
 grpcio==1.80.0
 grpcio-status==1.80.0
 h11==0.16.0
@@ -36,8 +36,10 @@ httpx==0.28.1
 hyperframe==6.1.0
 idna==3.11
 msgpack==1.1.2
+numpy==2.2.6
 openpyxl==3.1.5
-playwright==1.60.0
+camoufox==0.4.11
+playwright==1.48.0
 protobuf==6.33.6
 proto-plus==1.27.2
 pyasn1_modules==0.4.2
@@ -45,10 +47,11 @@ pyasn1==0.6.3
 pycparser==3.0
 pydantic_core==2.41.5
 pydantic==2.12.5
-pyee==13.0.1
+pyee==12.0.0
 PyJWT==2.12.1
 python-dotenv==1.2.2
 python-multipart==0.0.29
+PyYAML==6.0.3
 requests==2.33.1
 six==1.17.0
 solvecaptcha-python==1.0.2
